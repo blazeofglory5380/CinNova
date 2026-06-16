@@ -7,6 +7,17 @@ import './AIAdvisor.css';
 const fmtM = n => '$' + Math.round(Math.abs(n)).toLocaleString();
 const fmtP = n => (typeof n === 'number' ? n.toFixed(1) : '0.0') + '%';
 const sgn  = n => (n >= 0 ? '+' : '−');
+const fmtN = n => (n ? '$' + Math.round(n).toLocaleString() : '—');
+
+function getSavedDocs() {
+  try { return JSON.parse(localStorage.getItem('cinnova_documents') || '[]'); }
+  catch { return []; }
+}
+
+function getNegotiationResult() {
+  try { return JSON.parse(localStorage.getItem('cinnova_negotiation_result') || 'null'); }
+  catch { return null; }
+}
 
 const PROMPTS = [
   { id: 'buy',        icon: '🏠', label: 'Should I buy this property?' },
@@ -19,8 +30,132 @@ const PROMPTS = [
   { id: 'beginner',   icon: '🎓', label: 'Is this good for a beginner investor?' },
 ];
 
+/* ── Document risks response ─────────────────────────────────────────── */
+function documentRisksResponse(docs) {
+  if (!docs || docs.length === 0) {
+    return [
+      { type: 'text', text: 'No saved documents found. Save a document in the Document Center first, then I can review its risk flags, missing items, and action steps here.' },
+      { type: 'action', text: 'Open Document Center →', route: '/document-center' },
+    ];
+  }
+
+  const latest   = docs[0];
+  const analysis = latest.analysisSnapshot;
+
+  if (!analysis) {
+    return [
+      { type: 'text', text: `Found ${docs.length} saved document${docs.length > 1 ? 's' : ''} but no analysis snapshot is attached. Re-open and save the document from the Document Center to attach the analysis.` },
+      { type: 'action', text: 'Open Document Center →', route: '/document-center' },
+    ];
+  }
+
+  const highRisks  = analysis.riskFlags?.filter(r => r.severity === 'high')   || [];
+  const medRisks   = analysis.riskFlags?.filter(r => r.severity === 'medium')  || [];
+  const totalRisks = analysis.riskFlags?.length || 0;
+
+  const blocks = [
+    { type: 'text', text: `Reviewing "${latest.name}" — your most recently saved ${latest.typeLabel}.${latest.isDemo ? ' Note: template analysis was used since the file contents were not parsed.' : ''}` },
+    { type: 'heading', text: `Status: ${analysis.status} · ${totalRisks} Risk Flag${totalRisks !== 1 ? 's' : ''}` },
+  ];
+
+  if (highRisks.length > 0) {
+    blocks.push({ type: 'heading', text: `🔴 High Priority (${highRisks.length})` });
+    blocks.push({ type: 'bullets', items: highRisks.map(r => r.text) });
+  }
+  if (medRisks.length > 0) {
+    blocks.push({ type: 'heading', text: `🟡 Moderate Concerns (${medRisks.length})` });
+    blocks.push({ type: 'bullets', items: medRisks.slice(0, 3).map(r => r.text) });
+  }
+  if (analysis.missingItems?.length > 0) {
+    blocks.push({ type: 'heading', text: 'Missing Items to Resolve' });
+    blocks.push({ type: 'bullets', items: analysis.missingItems.slice(0, 4) });
+  }
+  if (analysis.aiSummary) {
+    blocks.push({ type: 'text', text: analysis.aiSummary });
+  }
+  if (analysis.nextSteps?.length > 0) {
+    blocks.push({ type: 'heading', text: 'Priority Next Steps' });
+    blocks.push({ type: 'bullets', items: analysis.nextSteps.slice(0, 3) });
+  }
+  if (docs.length > 1) {
+    blocks.push({ type: 'text', text: `You have ${docs.length} saved documents total. Ask "review my inspection report" (or any document type) to focus on a specific one.` });
+  }
+  blocks.push({ type: 'action', text: 'Open Document Center →', route: '/document-center' });
+
+  return blocks;
+}
+
+/* ── Negotiation result response ─────────────────────────────────────── */
+function negotiationResultResponse(negResult, prop) {
+  if (!negResult) {
+    return [
+      { type: 'text', text: "No negotiation result found. Run the Negotiation Center on a deal, then click \"Send Results to AI Advisor\" to get my analysis here." },
+      { type: 'action', text: 'Open Negotiation Center →', route: '/negotiation' },
+    ];
+  }
+
+  const {
+    strength = 0, mode, property: negProp,
+    offerPrice, suggestedNextOffer, risks, concessions, advice, createdAt,
+  } = negResult;
+
+  const strengthLevel = strength >= 70 ? 'Strong' : strength >= 50 ? 'Moderate' : 'Weak';
+  const strengthColor = strength >= 70 ? 'green'  : strength >= 50 ? 'gold'     : 'red';
+  const propLabel     = negProp || (prop ? (prop.address || prop.fullAddress) : 'the property');
+  const dateLine      = createdAt
+    ? ` (sent ${new Date(createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })})`
+    : '';
+
+  const blocks = [
+    { type: 'text', text: `Here's my read on your ${mode || 'Buyer'} negotiation for ${propLabel}${dateLine}:` },
+    { type: 'verdict', label: `${mode || 'Buyer'} Strength: ${strengthLevel} · ${strength}/100`, color: strengthColor },
+    { type: 'heading', text: 'Position Summary' },
+    { type: 'bullets', items: [
+      offerPrice       ? `Current offer: ${fmtN(offerPrice)}`              : null,
+      suggestedNextOffer ? `Suggested next move: ${fmtN(suggestedNextOffer)}` : null,
+      strength >= 70
+        ? `At ${strength}/100 you hold clear leverage — don't over-negotiate; closing on your terms is worth more than squeezing the last dollar.`
+        : strength >= 50
+        ? `At ${strength}/100 this is balanced. Inspection contingencies, closing timeline, and seller concessions can tip it your way.`
+        : `At ${strength}/100 the other side holds more leverage. Improve your offer terms or walk if the gap won't close.`,
+    ].filter(Boolean) },
+  ];
+
+  if (risks?.length > 0) {
+    blocks.push({ type: 'heading', text: 'Risk Factors' });
+    blocks.push({ type: 'bullets', items: risks.slice(0, 3) });
+  }
+  if (concessions?.length > 0) {
+    blocks.push({ type: 'heading', text: 'Recommended Concessions' });
+    blocks.push({ type: 'bullets', items: concessions.slice(0, 3) });
+  }
+  if (advice?.length > 0) {
+    blocks.push({ type: 'heading', text: 'Negotiation Advice' });
+    blocks.push({ type: 'bullets', items: advice.slice(0, 3) });
+  }
+  blocks.push({
+    type: 'text',
+    text: suggestedNextOffer
+      ? `If you make a move, I'd target ${fmtN(suggestedNextOffer)} as your next offer — advances the deal without signaling desperation.`
+      : 'Run the Negotiation Center with updated terms to get a fresh strength score and offer strategy.',
+  });
+  blocks.push({ type: 'action', text: 'Back to Negotiation Center →', route: '/negotiation' });
+
+  return blocks;
+}
+
 /* ── Response generator ──────────────────────────────────────────────── */
-function buildResponse(question, prop, port) {
+function buildResponse(question, prop, port, docs, negResult) {
+  const q = question.toLowerCase();
+
+  /* Document and negotiation prompts — handled before the property guard */
+  if (q.includes('document') && (q.includes('risk') || q.includes('review') || q.includes('latest'))) {
+    return documentRisksResponse(docs);
+  }
+  if (q.includes('negotiation') || q.includes('negotiat') || q.includes('my negotiation')) {
+    return negotiationResultResponse(negResult, prop);
+  }
+
   if (!prop) {
     return [
       { type: 'text', text: "I don't have an active property to analyze. Select a listing from Property Search and I'll provide specific deal scoring, risk analysis, and investment recommendations tailored to that property." },
@@ -36,7 +171,6 @@ function buildResponse(question, prop, port) {
   const roi      = prop.roi      || 0;
   const addr     = prop.address  || prop.fullAddress || 'the selected property';
   const type     = prop.type     || 'Single Family';
-  const q        = question.toLowerCase();
 
   if (q.includes('should i buy') || q.match(/should i/) || q.includes('buy this')) {
     return buyResponse(addr, price, rent, cashFlow, capRate, score, roi, type, port);
@@ -354,10 +488,12 @@ export default function AIAdvisor() {
   const property  = getSelectedProperty();
   const portfolio = useMemo(() => getPortfolio(), []);
 
-  const [messages, setMessages] = useState([]);
-  const [input,    setInput]    = useState('');
-  const [thinking, setThinking] = useState(false);
-  const [saved,    setSaved]    = useState(false);
+  const [messages,          setMessages]          = useState([]);
+  const [input,             setInput]             = useState('');
+  const [thinking,          setThinking]          = useState(false);
+  const [saved,             setSaved]             = useState(false);
+  const [savedDocs,         setSavedDocs]         = useState(() => getSavedDocs());
+  const [negotiationResult, setNegotiationResult] = useState(() => getNegotiationResult());
   const msgEndRef = useRef(null);
 
   /* ── Portfolio summary ─────────────────── */
@@ -377,6 +513,8 @@ export default function AIAdvisor() {
     msgEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, thinking]);
 
+  const hasContext = savedDocs.length > 0 || Boolean(negotiationResult);
+
   const sendMessage = text => {
     if (!text.trim() || thinking) return;
     setMessages(prev => [...prev, { role: 'user', text: text.trim(), id: Date.now() }]);
@@ -384,7 +522,7 @@ export default function AIAdvisor() {
     setThinking(true);
     const delay = 700 + Math.random() * 700;
     setTimeout(() => {
-      const blocks = buildResponse(text.trim(), property, port);
+      const blocks = buildResponse(text.trim(), property, port, savedDocs, negotiationResult);
       setMessages(prev => [...prev, { role: 'ai', blocks, id: Date.now() }]);
       setThinking(false);
     }, delay);
@@ -498,6 +636,43 @@ export default function AIAdvisor() {
             </div>
           )}
 
+          {/* Context Available card */}
+          {hasContext && (
+            <div className="card" style={{ borderLeft: '3px solid var(--primary)' }}>
+              <div className="card-header">
+                <h2 className="card-title" style={{ fontSize: '13px' }}>Context Available</h2>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12px', color: 'var(--gray-600)' }}>
+                {savedDocs.length > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>📄</span>
+                    <span>{savedDocs.length} saved document{savedDocs.length !== 1 ? 's' : ''}</span>
+                  </div>
+                )}
+                {negotiationResult && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>🤝</span>
+                    <span>Negotiation result · {negotiationResult.property || 'Property'}</span>
+                  </div>
+                )}
+              </div>
+              <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {savedDocs.length > 0 && (
+                  <button className="btn btn-ghost btn-sm" style={{ justifyContent: 'flex-start', fontSize: '12px' }}
+                    onClick={() => sendMessage('Review my latest document risks')}>
+                    Review my latest document risks →
+                  </button>
+                )}
+                {negotiationResult && (
+                  <button className="btn btn-ghost btn-sm" style={{ justifyContent: 'flex-start', fontSize: '12px' }}
+                    onClick={() => sendMessage('Use my negotiation result')}>
+                    Use my negotiation result →
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Quick actions */}
           <div className="card">
             <div className="card-header"><h2 className="card-title">Quick Actions</h2></div>
@@ -540,6 +715,8 @@ export default function AIAdvisor() {
                 <p className="adv-welcome-text">
                   {property
                     ? `I'm ready to analyze ${property.address || property.fullAddress} at ${fmtM(property.price || 0)}. Click a prompt or ask anything about this deal.`
+                    : hasContext
+                    ? `I have access to your saved ${savedDocs.length > 0 ? `${savedDocs.length} document${savedDocs.length !== 1 ? 's' : ''}` : ''}${savedDocs.length > 0 && negotiationResult ? ' and ' : ''}${negotiationResult ? 'negotiation result' : ''}. Ask me to review them, or select a property for full deal analysis.`
                     : `Select a property from Property Search to get personalized deal analysis, risk flags, and investment recommendations.`
                   }
                 </p>
@@ -547,18 +724,41 @@ export default function AIAdvisor() {
             </div>
 
             {/* Suggested prompts — shown before first message */}
-            {messages.length === 0 && property && (
+            {messages.length === 0 && (property || hasContext) && (
               <div className="adv-prompts-block">
                 <p className="adv-prompts-label">Suggested questions</p>
-                <div className="adv-prompt-grid">
-                  {PROMPTS.map(p => (
-                    <button key={p.id} className="adv-prompt-chip"
-                      onClick={() => sendMessage(p.label)}>
-                      <span className="adv-prompt-icon">{p.icon}</span>
-                      {p.label}
-                    </button>
-                  ))}
-                </div>
+                {hasContext && (
+                  <div style={{ marginBottom: '10px' }}>
+                    <p className="adv-prompts-label" style={{ color: 'var(--primary)', marginBottom: '6px' }}>From your saved context</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                      {savedDocs.length > 0 && (
+                        <button className="adv-prompt-chip"
+                          onClick={() => sendMessage('Review my latest document risks')}>
+                          <span className="adv-prompt-icon">📄</span>
+                          Review my latest document risks
+                        </button>
+                      )}
+                      {negotiationResult && (
+                        <button className="adv-prompt-chip"
+                          onClick={() => sendMessage('Use my negotiation result')}>
+                          <span className="adv-prompt-icon">🤝</span>
+                          Use my negotiation result
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {property && (
+                  <div className="adv-prompt-grid">
+                    {PROMPTS.map(p => (
+                      <button key={p.id} className="adv-prompt-chip"
+                        onClick={() => sendMessage(p.label)}>
+                        <span className="adv-prompt-icon">{p.icon}</span>
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -588,9 +788,21 @@ export default function AIAdvisor() {
           </div>
 
           {/* Compact prompts bar (visible after conversation starts) */}
-          {messages.length > 0 && property && (
+          {messages.length > 0 && (property || hasContext) && (
             <div className="adv-prompts-bar">
-              {PROMPTS.slice(0, 4).map(p => (
+              {savedDocs.length > 0 && (
+                <button className="adv-prompt-bar-chip"
+                  onClick={() => sendMessage('Review my latest document risks')}>
+                  📄 Document risks
+                </button>
+              )}
+              {negotiationResult && (
+                <button className="adv-prompt-bar-chip"
+                  onClick={() => sendMessage('Use my negotiation result')}>
+                  🤝 Negotiation result
+                </button>
+              )}
+              {property && PROMPTS.slice(0, 4).map(p => (
                 <button key={p.id} className="adv-prompt-bar-chip"
                   onClick={() => sendMessage(p.label)}>
                   {p.label}
@@ -603,14 +815,20 @@ export default function AIAdvisor() {
           <div className="adv-input-bar">
             <input
               className="adv-input"
-              placeholder={property ? `Ask about ${property.address || 'this property'}…` : 'Select a property to start…'}
+              placeholder={
+                property
+                  ? `Ask about ${property.address || 'this property'}…`
+                  : hasContext
+                  ? 'Ask about your saved documents or negotiation…'
+                  : 'Select a property to start…'
+              }
               value={input}
-              disabled={!property || thinking}
+              disabled={(!property && !hasContext) || thinking}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(input); } }}
             />
             <button className="btn btn-primary adv-send-btn"
-              disabled={!input.trim() || !property || thinking}
+              disabled={!input.trim() || (!property && !hasContext) || thinking}
               onClick={() => sendMessage(input)}>
               Send
             </button>

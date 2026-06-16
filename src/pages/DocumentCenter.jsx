@@ -160,14 +160,14 @@ const ANALYSIS = {
   'rent-roll': {
     status: 'Verified', statusBadge: 'badge-blue',
     keyTerms: [
-      { label: 'Total Units',          value: '12' },
-      { label: 'Occupied Units',       value: '11 (91.7% occupancy)' },
-      { label: 'Gross Monthly Rent',   value: '$26,400 at full occupancy' },
-      { label: 'Actual Collection',    value: '$24,200 (current month)' },
-      { label: 'Avg Rent / Unit',      value: '$2,200' },
-      { label: 'Below-Market Units',   value: '3 units — est. $220/unit below market' },
-      { label: 'Longest Tenancy',      value: '8 years (Unit 6)' },
-      { label: 'Month-to-Month Leases',value: '4 units' },
+      { label: 'Total Units',           value: '12' },
+      { label: 'Occupied Units',        value: '11 (91.7% occupancy)' },
+      { label: 'Gross Monthly Rent',    value: '$26,400 at full occupancy' },
+      { label: 'Actual Collection',     value: '$24,200 (current month)' },
+      { label: 'Avg Rent / Unit',       value: '$2,200' },
+      { label: 'Below-Market Units',    value: '3 units — est. $220/unit below market' },
+      { label: 'Longest Tenancy',       value: '8 years (Unit 6)' },
+      { label: 'Month-to-Month Leases', value: '4 units' },
     ],
     riskFlags: [
       { text: '4 units on month-to-month leases — elevated short-term vacancy exposure if tenants exit together.', severity: 'medium' },
@@ -223,14 +223,14 @@ const ANALYSIS = {
   'floor-plan': {
     status: 'Reviewed', statusBadge: 'badge-blue',
     keyTerms: [
-      { label: 'Total Building Area',   value: '2,840 sqft (per plan)' },
-      { label: 'Bedrooms / Bathrooms',  value: '3 bed / 2 full + 1 half bath' },
-      { label: 'Garage',                value: '2-car attached (480 sqft)' },
-      { label: 'Estimated Lot Coverage',value: '~38% (verify against zoning limit)' },
-      { label: 'Ceiling Heights',       value: '9 ft main / 8 ft upper / 8 ft basement' },
-      { label: 'Egress Windows',        value: 'Present in all bedrooms (IBC compliant)' },
-      { label: 'Plan Scale',            value: '1/4" = 1\'-0" (architectural standard)' },
-      { label: 'Drawing Date',          value: 'Undated — verify as-built status' },
+      { label: 'Total Building Area',    value: '2,840 sqft (per plan)' },
+      { label: 'Bedrooms / Bathrooms',   value: '3 bed / 2 full + 1 half bath' },
+      { label: 'Garage',                 value: '2-car attached (480 sqft)' },
+      { label: 'Estimated Lot Coverage', value: '~38% (verify against zoning limit)' },
+      { label: 'Ceiling Heights',        value: '9 ft main / 8 ft upper / 8 ft basement' },
+      { label: 'Egress Windows',         value: 'Present in all bedrooms (IBC compliant)' },
+      { label: 'Plan Scale',             value: '1/4" = 1\'-0" (architectural standard)' },
+      { label: 'Drawing Date',           value: 'Undated — verify as-built status' },
     ],
     riskFlags: [
       { text: 'Plan set is undated — confirm this reflects the current as-built condition, not original construction drawings.', severity: 'medium' },
@@ -284,14 +284,14 @@ const ANALYSIS = {
   'insurance-document': {
     status: 'Active', statusBadge: 'badge-green',
     keyTerms: [
-      { label: 'Policy Type',       value: 'Dwelling Policy (DP-3)' },
-      { label: 'Annual Premium',    value: '$2,840 ($237/month)' },
-      { label: 'Coverage Amount',   value: '$485,000 (dwelling replacement cost)' },
-      { label: 'Liability',         value: '$300,000 per occurrence' },
-      { label: 'Deductible',        value: '$2,500 (all-perils)' },
-      { label: 'Flood Coverage',    value: 'Not included — separate policy required' },
-      { label: 'Loss of Rents',     value: '12 months at actual fair rental value' },
-      { label: 'Policy Period',     value: 'May 1, 2026 – May 1, 2027' },
+      { label: 'Policy Type',    value: 'Dwelling Policy (DP-3)' },
+      { label: 'Annual Premium', value: '$2,840 ($237/month)' },
+      { label: 'Coverage Amount',value: '$485,000 (dwelling replacement cost)' },
+      { label: 'Liability',      value: '$300,000 per occurrence' },
+      { label: 'Deductible',     value: '$2,500 (all-perils)' },
+      { label: 'Flood Coverage', value: 'Not included — separate policy required' },
+      { label: 'Loss of Rents',  value: '12 months at actual fair rental value' },
+      { label: 'Policy Period',  value: 'May 1, 2026 – May 1, 2027' },
     ],
     riskFlags: [
       { text: 'Flood coverage excluded — property must be verified outside FEMA Zone A/AE before waiving flood policy.', severity: 'high' },
@@ -314,27 +314,66 @@ const ANALYSIS = {
   },
 };
 
+/* ── localStorage persistence ─────────────────────────────── */
+const LS_KEY = 'cinnova_documents';
+
+function getSavedDocs() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); }
+  catch { return []; }
+}
+
+function upsertDoc(record) {
+  const docs = getSavedDocs();
+  const idx  = docs.findIndex(d => d.id === record.id);
+  if (idx >= 0) docs[idx] = { ...docs[idx], ...record };
+  else docs.unshift(record);
+  localStorage.setItem(LS_KEY, JSON.stringify(docs));
+}
+
+function makeId() {
+  return `doc-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function formatSize(bytes) {
+  if (!bytes) return '—';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1048576) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / 1048576).toFixed(1)} MB`;
+}
+
+function fmtDate(iso) {
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+/* ── Component ────────────────────────────────────────────── */
 export default function DocumentCenter() {
-  const navigate = useNavigate();
+  const navigate         = useNavigate();
   const selectedProperty = getSelectedProperty();
-  const fileInputRef = useRef(null);
+  const fileInputRef     = useRef(null);
 
-  const [docTypeId, setDocTypeId]     = useState('purchase-contract');
-  const [activeDoc, setActiveDoc]     = useState(null);
-  const [analyzing, setAnalyzing]     = useState(false);
-  const [analyzed, setAnalyzed]       = useState(false);
-  const [uploadedFile, setUploadedFile] = useState(null);
-  const [dragOver, setDragOver]       = useState(false);
-  const [saved, setSaved]             = useState(false);
-  const [attached, setAttached]       = useState(false);
+  const [docTypeId,     setDocTypeId]     = useState('purchase-contract');
+  const [activeDoc,     setActiveDoc]     = useState(null);
+  const [analyzing,     setAnalyzing]     = useState(false);
+  const [analyzed,      setAnalyzed]      = useState(false);
+  const [uploadedFile,  setUploadedFile]  = useState(null);
+  const [dragOver,      setDragOver]      = useState(false);
+  const [saved,         setSaved]         = useState(false);
+  const [attached,      setAttached]      = useState(false);
+  const [currentDocId,  setCurrentDocId]  = useState(null);
+  const [savedDocs,     setSavedDocs]     = useState(() => getSavedDocs());
 
-  const analysis = ANALYSIS[activeDoc?.type || docTypeId];
+  const analysis    = ANALYSIS[activeDoc?.type || docTypeId];
+  const displayName = activeDoc?.name || uploadedFile?.name || null;
+  const typeLabel   = DOC_TYPES.find(dt => dt.id === (activeDoc?.type || docTypeId))?.label;
+  /* Show honesty banner when file was uploaded (not read) or when restoring a demo-flagged saved record */
+  const isDemo      = Boolean(uploadedFile) || Boolean(activeDoc?.isDemo);
 
-  const runAnalysis = (ms = 900) => {
+  /* Start analysis cycle — optionally preserve saved/attached state when restoring a record */
+  const startAnalysis = (ms, docId, keepState = false) => {
+    setCurrentDocId(docId);
     setAnalyzing(true);
     setAnalyzed(false);
-    setSaved(false);
-    setAttached(false);
+    if (!keepState) { setSaved(false); setAttached(false); }
     setTimeout(() => { setAnalyzing(false); setAnalyzed(true); }, ms);
   };
 
@@ -342,11 +381,12 @@ export default function DocumentCenter() {
     setActiveDoc(doc);
     setDocTypeId(doc.type);
     setUploadedFile(null);
-    runAnalysis(800);
+    startAnalysis(800, doc.id);
   };
 
   const handleAnalyze = () => {
-    if (activeDoc || uploadedFile) runAnalysis(1100);
+    if (!activeDoc && !uploadedFile) return;
+    startAnalysis(1100, activeDoc?.id || currentDocId || makeId());
   };
 
   const handleFileChange = e => {
@@ -355,6 +395,7 @@ export default function DocumentCenter() {
     setUploadedFile(file);
     setActiveDoc(null);
     setAnalyzed(false);
+    setCurrentDocId(makeId());
   };
 
   const handleDrop = e => {
@@ -365,11 +406,90 @@ export default function DocumentCenter() {
     setUploadedFile(file);
     setActiveDoc(null);
     setAnalyzed(false);
+    setCurrentDocId(makeId());
+  };
+
+  /* Restore a saved record (sample or user-uploaded) from the Saved Documents section */
+  const handleSavedDocClick = savedDoc => {
+    const matchingSample = SAMPLE_DOCS.find(s => s.id === savedDoc.id);
+    if (matchingSample) {
+      handleDocClick(matchingSample);
+      return;
+    }
+    /* User-uploaded doc — restore synthetic activeDoc so analysis panel renders correctly */
+    setActiveDoc({
+      id:     savedDoc.id,
+      type:   savedDoc.type,
+      name:   savedDoc.name,
+      size:   savedDoc.size,
+      pages:  savedDoc.pages,
+      date:   savedDoc.savedAt ? fmtDate(savedDoc.savedAt) : '—',
+      isDemo: savedDoc.isDemo,
+    });
+    setDocTypeId(savedDoc.type);
+    setUploadedFile(null);
+    setCurrentDocId(savedDoc.id);
+    setSaved(Boolean(savedDoc.savedAt));
+    setAttached(Boolean(savedDoc.propertyAddress));
+    setAnalyzing(true);
+    setAnalyzed(false);
+    setTimeout(() => { setAnalyzing(false); setAnalyzed(true); }, 600);
+  };
+
+  /* Persist report to localStorage */
+  const handleSaveReport = () => {
+    if (!analyzed) return;
+    const typeId  = activeDoc?.type || docTypeId;
+    const id      = currentDocId || makeId();
+    const record  = {
+      id,
+      name:                displayName || 'Unnamed Document',
+      type:                typeId,
+      typeLabel:           DOC_TYPES.find(dt => dt.id === typeId)?.label || typeId,
+      size:                uploadedFile ? formatSize(uploadedFile.size) : (activeDoc?.size || '—'),
+      pages:               activeDoc?.pages ?? null,
+      uploadDate:          new Date().toISOString(),
+      savedAt:             new Date().toISOString(),
+      isUpload:            Boolean(uploadedFile),
+      isDemo:              Boolean(uploadedFile) || Boolean(activeDoc?.isDemo),
+      propertyAddress:     attached ? (selectedProperty?.fullAddress || selectedProperty?.address || null) : null,
+      propertyAttachedAt:  attached ? new Date().toISOString() : null,
+      analysisSnapshot:    analysis,
+    };
+    upsertDoc(record);
+    setSavedDocs(getSavedDocs());
+    setSaved(true);
+  };
+
+  /* Persist property attachment to localStorage */
+  const handleAttach = () => {
+    if (!selectedProperty || !analyzed) return;
+    const typeId          = activeDoc?.type || docTypeId;
+    const id              = currentDocId || makeId();
+    const propertyAddress = selectedProperty.fullAddress || selectedProperty.address;
+    const existing        = getSavedDocs().find(d => d.id === id);
+    const record          = {
+      id,
+      name:                displayName || 'Unnamed Document',
+      type:                typeId,
+      typeLabel:           DOC_TYPES.find(dt => dt.id === typeId)?.label || typeId,
+      size:                uploadedFile ? formatSize(uploadedFile.size) : (activeDoc?.size || existing?.size || '—'),
+      pages:               activeDoc?.pages ?? existing?.pages ?? null,
+      uploadDate:          existing?.uploadDate || new Date().toISOString(),
+      savedAt:             existing?.savedAt || null,
+      isUpload:            Boolean(uploadedFile) || Boolean(existing?.isUpload),
+      isDemo:              Boolean(uploadedFile) || Boolean(activeDoc?.isDemo) || Boolean(existing?.isDemo),
+      propertyAddress,
+      propertyAttachedAt:  new Date().toISOString(),
+      analysisSnapshot:    existing?.analysisSnapshot || analysis,
+    };
+    upsertDoc(record);
+    setSavedDocs(getSavedDocs());
+    setCurrentDocId(id);
+    setAttached(true);
   };
 
   const canAnalyze = Boolean(activeDoc || uploadedFile);
-  const displayName = activeDoc?.name || uploadedFile?.name || null;
-  const typeLabel = DOC_TYPES.find(dt => dt.id === (activeDoc?.type || docTypeId))?.label;
 
   return (
     <div className="page">
@@ -383,8 +503,12 @@ export default function DocumentCenter() {
           </p>
         </div>
         <div className="dc-summary">
-          <span className="dc-summary-value">{SAMPLE_DOCS.length}</span>
-          <span className="dc-summary-label">Sample Documents</span>
+          <span className="dc-summary-value">{savedDocs.length + SAMPLE_DOCS.length}</span>
+          <span className="dc-summary-label">
+            {savedDocs.length > 0
+              ? `${savedDocs.length} saved · ${SAMPLE_DOCS.length} samples`
+              : `${SAMPLE_DOCS.length} Sample Documents`}
+          </span>
         </div>
       </div>
 
@@ -392,7 +516,7 @@ export default function DocumentCenter() {
       <div className="card section">
         <div className="card-header">
           <h2 className="card-title">Upload & Analyze</h2>
-          <span className="badge badge-blue">AI Document Intelligence</span>
+          <span className="badge badge-blue">Document Intelligence</span>
         </div>
         <div className="dc-upload-row">
           <div
@@ -413,7 +537,7 @@ export default function DocumentCenter() {
               <>
                 <span className="dc-upload-zone-icon">📄</span>
                 <p className="dc-upload-zone-filename">{uploadedFile.name}</p>
-                <p className="dc-upload-zone-hint">Ready to analyze — select a type and click Analyze Document</p>
+                <p className="dc-upload-zone-hint">Select a document type and click Analyze Document</p>
               </>
             ) : (
               <>
@@ -441,7 +565,7 @@ export default function DocumentCenter() {
               </select>
             </div>
             <p className="dc-upload-hint-text">
-              Select a sample document below to run instant AI analysis, or upload your own file.
+              Select a sample document or upload your own. Analysis uses template data for the selected document type.
             </p>
             <button
               className="btn btn-primary btn-full"
@@ -469,7 +593,55 @@ export default function DocumentCenter() {
         </div>
       )}
 
-      {/* Document Library */}
+      {/* Saved Documents — persisted across sessions */}
+      {savedDocs.length > 0 && (
+        <div className="section">
+          <div className="section-header">
+            <h2 className="section-title">Saved Documents</h2>
+            <span className="badge badge-teal">{savedDocs.length} saved · click to view</span>
+          </div>
+          <div className="dc-doc-grid">
+            {savedDocs.map(doc => {
+              const ad         = doc.analysisSnapshot || ANALYSIS[doc.type];
+              const isActive   = currentDocId === doc.id && analyzed;
+              const dateStr    = doc.savedAt
+                ? fmtDate(doc.savedAt)
+                : doc.propertyAttachedAt ? fmtDate(doc.propertyAttachedAt) : '—';
+              return (
+                <div
+                  key={doc.id}
+                  className={`dc-doc-tile${isActive ? ' active' : ''}`}
+                  onClick={() => handleSavedDocClick(doc)}
+                >
+                  <div className="dc-doc-tile-top">
+                    <span className="dc-doc-tile-icon">{doc.isUpload ? '📤' : '📝'}</span>
+                    <span className={`badge ${ad?.statusBadge || 'badge-gray'}`}>
+                      {ad?.status || 'Saved'}
+                    </span>
+                  </div>
+                  <h3 className="dc-doc-tile-name">{doc.name}</h3>
+                  <p className="dc-doc-tile-type">{doc.typeLabel}</p>
+                  <div className="dc-doc-tile-meta">
+                    <span>{dateStr}</span>
+                    <span>{doc.size}</span>
+                    {doc.pages && <span>{doc.pages}p</span>}
+                  </div>
+                  <div className="dc-doc-tile-flags">
+                    {doc.isDemo && (
+                      <span className="dc-missing-chip">Demo analysis</span>
+                    )}
+                    {doc.propertyAddress && (
+                      <span className="dc-risk-chip dc-risk-chip--med" title={doc.propertyAddress}>📍 Attached</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Document Library — sample documents */}
       <div className="section">
         <div className="section-header">
           <h2 className="section-title">Document Library</h2>
@@ -477,7 +649,7 @@ export default function DocumentCenter() {
         </div>
         <div className="dc-doc-grid">
           {SAMPLE_DOCS.map(doc => {
-            const a = ANALYSIS[doc.type];
+            const a          = ANALYSIS[doc.type];
             const hasHighRisk = a.riskFlags.some(r => r.severity === 'high');
             return (
               <div
@@ -518,15 +690,44 @@ export default function DocumentCenter() {
             </div>
           ) : (
             <>
+              {/* Honesty banner — shown whenever file was uploaded (contents not read) */}
+              {isDemo && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '10px',
+                  padding: '12px 16px',
+                  background: '#fffbeb',
+                  border: '1.5px solid #f59e0b',
+                  borderRadius: '8px',
+                  marginBottom: '16px',
+                  fontSize: '13px',
+                  color: '#78350f',
+                  lineHeight: '1.6',
+                }}>
+                  <span style={{ fontSize: '16px', flexShrink: 0, marginTop: '1px' }}>ℹ️</span>
+                  <div>
+                    <strong>Demo analysis based on document type — file contents were not read.</strong>{' '}
+                    This analysis shows template data for <em>{typeLabel}</em> documents.{' '}
+                    Actual text extraction and parsing is coming soon.
+                  </div>
+                </div>
+              )}
+
               {/* Document Analysis Header */}
               <div className="card dc-analysis-header section">
                 <div className="dc-analysis-header-row">
                   <div>
                     <span className="badge badge-blue">{typeLabel}</span>
                     <h2 className="dc-analysis-doc-name">{displayName || 'Uploaded Document'}</h2>
-                    {activeDoc && (
+                    {activeDoc && !activeDoc.isDemo && (
                       <p className="dc-analysis-doc-sub">
                         {activeDoc.pages} pages · {activeDoc.size} · {activeDoc.date}
+                      </p>
+                    )}
+                    {(uploadedFile || activeDoc?.isDemo) && (
+                      <p className="dc-analysis-doc-sub">
+                        {uploadedFile ? formatSize(uploadedFile.size) : activeDoc?.size} · Uploaded
                       </p>
                     )}
                   </div>
@@ -555,7 +756,7 @@ export default function DocumentCenter() {
               {/* Two-column analysis */}
               <div className="dc-analysis-grid section">
 
-                {/* Left column: Key Terms + Risk Flags */}
+                {/* Left: Key Terms + Risk Flags */}
                 <div className="dc-analysis-col">
                   <div className="card">
                     <div className="card-header">
@@ -595,7 +796,7 @@ export default function DocumentCenter() {
                   </div>
                 </div>
 
-                {/* Right column: Missing Items + AI Summary */}
+                {/* Right: Missing Items + AI Summary */}
                 <div className="dc-analysis-col">
                   <div className="card">
                     <div className="card-header">
@@ -649,19 +850,19 @@ export default function DocumentCenter() {
                 <button
                   className={`btn ${attached ? 'btn-ghost' : 'btn-outline'}`}
                   type="button"
-                  onClick={() => setAttached(true)}
+                  onClick={handleAttach}
                   disabled={!selectedProperty || attached}
                   title={!selectedProperty ? 'Select a property first via Property Search' : undefined}
                 >
-                  {attached ? 'Attached to Property' : 'Attach to Selected Property'}
+                  {attached ? '📍 Attached to Property' : 'Attach to Selected Property'}
                 </button>
                 <button
                   className={`btn ${saved ? 'btn-ghost' : 'btn-outline'}`}
                   type="button"
-                  onClick={() => setSaved(true)}
+                  onClick={handleSaveReport}
                   disabled={saved}
                 >
-                  {saved ? 'Report Saved' : 'Save Report'}
+                  {saved ? '✓ Report Saved' : 'Save Report'}
                 </button>
               </div>
             </>
