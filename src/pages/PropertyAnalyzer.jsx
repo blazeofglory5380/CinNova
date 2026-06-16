@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { runAnalysis } from '../services/analysisService';
 import { saveProperty } from '../services/propertyStorage';
+import { getSelectedProperty } from '../services/propertyWorkflow';
 import './PropertyAnalyzer.css';
 
 const PROPERTY_TYPES = [
@@ -20,6 +22,22 @@ const TYPE_LABELS = {
 };
 
 const INIT = { address: '', price: '', beds: '', baths: '', sqft: '', type: 'single-family' };
+
+function initFromSelected() {
+  const s = getSelectedProperty();
+  if (!s) return INIT;
+  return {
+    address: s.fullAddress || s.address || '',
+    price:   String(s.price  || ''),
+    beds:    String(s.beds   || ''),
+    baths:   String(s.baths  || ''),
+    sqft:    String(s.sqft   || ''),
+    type:    s.type === 'Condo'       ? 'condo'
+           : s.type === 'Multifamily' ? 'multifamily'
+           : s.type === 'Commercial'  ? 'commercial'
+           : 'single-family',
+  };
+}
 
 /* ── Circular score ring ─────────────────────────────────── */
 function ScoreRing({ score, max = 100, color, label, sublabel }) {
@@ -144,7 +162,9 @@ function TCOSection({ tco }) {
 
 /* ── Main page ───────────────────────────────────────────── */
 export default function PropertyAnalyzer() {
-  const [form,     setForm]     = useState(INIT);
+  const navigate   = useNavigate();
+  const selected   = getSelectedProperty();
+  const [form,     setForm]     = useState(initFromSelected);
   const [analysis, setAnalysis] = useState(null);
   const [loading,  setLoading]  = useState(false);
 
@@ -174,6 +194,29 @@ export default function PropertyAnalyzer() {
           Enter property details to generate an AI-powered deal score and investment report.
         </p>
       </div>
+
+      {selected ? (
+        <div style={{ display:'flex', alignItems:'center', gap:'16px', padding:'14px 20px', background:'#eff6ff', borderLeft:'4px solid #2563eb', borderRadius:'8px', marginBottom:'16px', flexWrap:'wrap' }}>
+          <span style={{ fontSize:'18px' }}>📍</span>
+          <div style={{ flex:1, minWidth:'200px' }}>
+            <strong style={{ color:'#1e40af' }}>{selected.fullAddress || selected.address}</strong>
+            <span style={{ color:'#3b82f6', marginLeft:'12px', fontSize:'13px' }}>
+              ${selected.price?.toLocaleString()} · {selected.type}
+              {selected.beds ? ` · ${selected.beds} bd / ${selected.baths} ba` : ''}
+            </span>
+          </div>
+          <button className="btn btn-ghost btn-sm" onClick={() => navigate('/property-search')}>Change Property →</button>
+        </div>
+      ) : (
+        <div style={{ display:'flex', alignItems:'center', gap:'12px', padding:'12px 20px', background:'#fffbeb', borderLeft:'4px solid #c9a84c', borderRadius:'8px', marginBottom:'16px' }}>
+          <span style={{ fontSize:'18px' }}>🏠</span>
+          <span style={{ color:'#78350f' }}>
+            <strong>No property selected.</strong>{' '}
+            <Link to="/property-search" style={{ color:'#2563eb', fontWeight:600 }}>Search properties →</Link>
+            {' '}to auto-fill this form, or enter details manually below.
+          </span>
+        </div>
+      )}
 
       {/* ── Form card ─────────────────────────────────────── */}
       <div className="card section">

@@ -133,6 +133,7 @@ export default function PortfolioDashboard() {
   const [sortBy, setSortBy]             = useState('value');
   const [view, setView]                 = useState('all');
   const [realPortfolio, setRealPortfolio] = useState(() => getPortfolio());
+  const recentAnalyses = getProperties().slice(0, 6);
 
   const goAnalyze  = p => { selectProperty(rowToProperty(p)); navigate('/deal-analyzer'); };
   const goCashFlow = p => { selectProperty(rowToProperty(p)); navigate('/cash-flow'); };
@@ -328,6 +329,77 @@ export default function PortfolioDashboard() {
           </table>
         </div>
       </div>
+
+      {/* Recent Analyses */}
+      {recentAnalyses.length > 0 && (
+        <div className="section card">
+          <div className="card-header">
+            <h2 className="card-title">Recent Analyses</h2>
+            <span className="badge badge-blue">{recentAnalyses.length} saved</span>
+          </div>
+          <div className="pd-table-wrap">
+            <table className="pd-table">
+              <thead>
+                <tr>
+                  <th>Property</th>
+                  <th>Deal Score</th>
+                  <th>Cap Rate</th>
+                  <th>Cash Flow</th>
+                  <th>ROI</th>
+                  <th>Risk</th>
+                  <th>Analyzed</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentAnalyses.map(entry => {
+                  const addr  = entry.form?.address || entry.analysis?.address || 'Unknown Address';
+                  const sc    = entry.analysis?.dealScore ?? entry.analysis?.opportunityScore ?? 0;
+                  const cap   = entry.analysis?.capRate   || '—';
+                  const cf    = entry.analysis?.cashFlow  || '—';
+                  const roi   = entry.analysis?.roi       || entry.analysis?.cashOnCash || '—';
+                  const risk  = entry.analysis?.riskLevel || '—';
+                  const date  = entry.timestamp
+                    ? new Date(entry.timestamp).toLocaleDateString('en-US',{month:'short',day:'numeric'})
+                    : '—';
+                  const prop  = entry.property || { address: addr, price: entry.analysis?.portfolio?.value || 0 };
+                  return (
+                    <tr key={entry.id}>
+                      <td>
+                        <div className="pd-prop-addr">{addr}</div>
+                        <div className="pd-prop-city">{entry.form?.type || ''}</div>
+                      </td>
+                      <td>
+                        <span className="pd-score" style={{ color: scoreColor(sc), borderColor: scoreColor(sc) }}>{sc || '—'}</span>
+                      </td>
+                      <td><strong>{cap}</strong></td>
+                      <td><strong className={String(cf).startsWith('+') ? 'text-green' : ''}>{cf}</strong></td>
+                      <td><strong>{roi}</strong></td>
+                      <td>
+                        <span className={`badge ${risk==='Low'?'badge-green':risk==='Moderate'?'badge-blue':'badge-gold'}`}>{risk}</span>
+                      </td>
+                      <td style={{ fontSize:'12px', color:'#64748b' }}>{date}</td>
+                      <td>
+                        <div className="pd-row-actions">
+                          <button className="btn btn-ghost btn-sm"
+                            onClick={() => { selectProperty(prop); navigate('/deal-analyzer'); }}>
+                            Re-Analyze
+                          </button>
+                          <button className="btn btn-ghost btn-sm"
+                            onClick={() => { selectProperty(prop); navigate('/advisor'); }}>
+                            Ask AI
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

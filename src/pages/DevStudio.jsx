@@ -156,6 +156,41 @@ export default function DevStudio() {
   const color = scoreColor(calc.fs);
   const risk  = riskLabel(calc.fs);
 
+  // Type-specific derived values
+  const acqNum    = Number(form.acquisitionPrice) || 0;
+  const rentNum   = Number(form.rentPerUnit)       || 0;
+  const capRateN  = (Number(form.capRate) || 5.5)  / 100;
+  const monthsNum = Number(form.timelineMonths)    || 12;
+  const propSqftN = Number(form.proposedSqft)      || 0;
+  const costSqftN = Number(form.constructionCostSqft) || 0;
+  const numUnitsN = Math.max(1, Number(form.numUnits) || 1);
+
+  // ADU metrics
+  const aduBuildCost  = propSqftN * costSqftN * (1 + (Number(form.softCostPct) + Number(form.contingencyPct)) / 100);
+  const aduPaybackYrs = rentNum > 0 && aduBuildCost > 0 ? aduBuildCost / (rentNum * 12) : 0;
+  const aduIncomeVal  = rentNum > 0 && capRateN > 0 ? (rentNum * 12 * 0.72) / capRateN : 0;
+  const aduValueAdded = aduIncomeVal - aduBuildCost;
+
+  // Renovation metrics
+  const arvVal     = Number(form.resaleValue) > 0 ? Number(form.resaleValue) : acqNum * 1.20;
+  const rule70     = arvVal * 0.70 - calc.hardCost;
+  const flipMargin = arvVal > 0 ? ((arvVal - calc.totalProjectCost) / arvVal * 100) : 0;
+
+  // Land metrics
+  const monthlyCarry   = acqNum * 0.015 / 12;
+  const entitleCost    = acqNum * 0.04;
+  const totalWithCarry = acqNum + entitleCost + (monthlyCarry * monthsNum);
+  const landNetProfit  = calc.stabilizedValue - totalWithCarry;
+
+  // Commercial metrics
+  const annualGrossRent = rentNum * numUnitsN * 12;
+  const noiCommercial   = annualGrossRent * 0.72;
+  const nnnEquiv        = rentNum * 1.15;
+  const impliedCap      = calc.stabilizedValue > 0 ? (noiCommercial / calc.stabilizedValue) * 100 : 0;
+
+  // Multifamily per-unit
+  const grm = rentNum > 0 ? (calc.stabilizedValue / (rentNum * numUnitsN * 12)) : 0;
+
   const handleSave = () => {
     addToPortfolio({
       id: Date.now(),
@@ -458,6 +493,255 @@ export default function DevStudio() {
           <div className="ds2-rec-card">
             <span className="ds2-rec-label">Recommended Next Step</span>
             <p>{NEXT_STEP[color]}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── ADU Feasibility ── */}
+      {projectTypeId === 'adu' && (
+        <div className="card section">
+          <div className="card-header">
+            <h2 className="card-title">ADU Feasibility Analysis</h2>
+            <span className={`badge ${aduValueAdded >= 0 ? 'badge-green' : 'badge-gold'}`}>
+              {aduValueAdded >= 0 ? 'Value Creating' : 'Review Inputs'}
+            </span>
+          </div>
+          <div className="ds2-recs-grid">
+            <div className="ds2-rec-card">
+              <span className="ds2-rec-label">ADU Income</span>
+              <p><strong>{money(rentNum)}/mo · {money(rentNum * 12)}/yr</strong></p>
+              <p>Yield on ADU cost: {aduBuildCost > 0 ? ((rentNum * 12) / aduBuildCost * 100).toFixed(1) : 0}%</p>
+              <p>Net income after vacancy (6%): {money(rentNum * 0.94)}/mo</p>
+            </div>
+            <div className="ds2-rec-card">
+              <span className="ds2-rec-label">Payback Period</span>
+              <p><strong>{aduPaybackYrs > 0 ? `${aduPaybackYrs.toFixed(1)} years` : 'Enter rent & sqft'}</strong></p>
+              <p>Total ADU cost (incl. soft + contingency): {money(aduBuildCost)}</p>
+              <p>At {money(rentNum)}/mo gross rent</p>
+            </div>
+            <div className="ds2-rec-card">
+              <span className="ds2-rec-label">Value Creation (Income Approach)</span>
+              <p>ADU income value at {form.capRate}% cap: <strong>{money(aduIncomeVal)}</strong></p>
+              <p>ADU build cost: <strong>{money(aduBuildCost)}</strong></p>
+              <p>Net value added: <strong>{money(aduValueAdded)}</strong></p>
+            </div>
+            <div className="ds2-rec-card">
+              <span className="ds2-rec-label">ADU Permit Checklist</span>
+              <p>• Verify setbacks (4–5 ft sides, 5 ft rear typical)</p>
+              <p>• Confirm lot coverage limit vs. existing footprint</p>
+              <p>• Check local ordinance for owner-occupancy requirements</p>
+              <p>• Utility connections: separate meter vs. sub-panel</p>
+              <p>• Permit & fee estimate: typically $5K–$18K</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Renovation Potential ── */}
+      {projectTypeId === 'sfr-reno' && (
+        <div className="card section">
+          <div className="card-header">
+            <h2 className="card-title">Renovation Potential Analysis</h2>
+            <span className={`badge ${flipMargin >= 20 ? 'badge-green' : flipMargin >= 12 ? 'badge-blue' : 'badge-gold'}`}>
+              {flipMargin >= 20 ? 'Strong Margin' : flipMargin >= 12 ? 'Viable' : 'Tight Margin'}
+            </span>
+          </div>
+          <div className="ds2-recs-grid">
+            <div className="ds2-rec-card">
+              <span className="ds2-rec-label">ARV & Flip Metrics</span>
+              <p>After-Repair Value (ARV): <strong>{money(arvVal)}</strong></p>
+              <p>Total Project Cost: <strong>{money(calc.totalProjectCost)}</strong></p>
+              <p>Gross Flip Margin: <strong>{flipMargin.toFixed(1)}%</strong></p>
+              <p>Target: ≥20% gross margin to cover carry, commissions, and taxes</p>
+            </div>
+            <div className="ds2-rec-card">
+              <span className="ds2-rec-label">70% Rule Analysis</span>
+              <p>Max all-in at 70% of ARV: <strong>{money(rule70)}</strong></p>
+              <p>Current all-in: <strong>{money(calc.totalProjectCost)}</strong></p>
+              <p>{calc.totalProjectCost <= rule70 ? '✓ Within the 70% threshold' : '⚠ Exceeds 70% — renegotiate price or reduce rehab scope'}</p>
+            </div>
+            <div className="ds2-rec-card">
+              <span className="ds2-rec-label">High-ROI Scope Guide</span>
+              <p>• Kitchen Remodel ($15K–45K): 70–80% ROI</p>
+              <p>• Bathroom Update ($8K–25K): 60–70% ROI</p>
+              <p>• Curb Appeal ($3K–8K): 80–100% ROI</p>
+              <p>• HVAC Replacement ($6K–15K): 70–75% ROI</p>
+              <p>• Flooring Upgrade ($4K–12K): 65–75% ROI</p>
+            </div>
+            <div className="ds2-rec-card">
+              <span className="ds2-rec-label">Execution Risk Factors</span>
+              <p>• Get 3 bids — fixed-price contracts over $15K</p>
+              <p>• Pre-1980 properties: 15–20% contingency minimum</p>
+              <p>• Pull permits for structural, electrical, and plumbing</p>
+              <p>• Monthly carrying cost: {money(acqNum * 0.0075)}/mo</p>
+              <p>• Total carry over {monthsNum} months: {money(acqNum * 0.0075 * monthsNum)}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Land Development Analysis ── */}
+      {projectTypeId === 'land' && (
+        <div className="card section">
+          <div className="card-header">
+            <h2 className="card-title">Land Development Analysis</h2>
+            <span className={`badge ${landNetProfit >= 0 ? 'badge-green' : 'badge-gold'}`}>
+              {landNetProfit >= 0 ? 'Positive Upside' : 'Review Inputs'}
+            </span>
+          </div>
+          <div className="ds2-recs-grid">
+            <div className="ds2-rec-card">
+              <span className="ds2-rec-label">Carry Cost Analysis</span>
+              <p>Monthly carry (est. 1.5%/mo hard money): <strong>{money(monthlyCarry)}/mo</strong></p>
+              <p>Carry over {monthsNum}-month timeline: <strong>{money(monthlyCarry * monthsNum)}</strong></p>
+              <p>Estimated entitlement costs (≈4% of acq): <strong>{money(entitleCost)}</strong></p>
+              <p>Total all-in with carry: <strong>{money(totalWithCarry)}</strong></p>
+            </div>
+            <div className="ds2-rec-card">
+              <span className="ds2-rec-label">Entitlement Process</span>
+              <p>• Pre-application with planning dept: 2–4 weeks</p>
+              <p>• Environmental review (CEQA/NEPA): 60–180 days</p>
+              <p>• Public hearing and approval: 30–90 days</p>
+              <p>• Total timeline: typically 6–18 months</p>
+            </div>
+            <div className="ds2-rec-card">
+              <span className="ds2-rec-label">Phase Development Strategy</span>
+              <p>Phase 1: Entitle and sell entitled parcels at a 20–40% premium</p>
+              <p>Phase 2: Horizontal infrastructure (roads, utilities, grading)</p>
+              <p>Phase 3: Vertical construction or lot sales to builders</p>
+              <p>Phased approach reduces capital at risk and accelerates cash recovery</p>
+            </div>
+            <div className="ds2-rec-card">
+              <span className="ds2-rec-label">Due Diligence Checklist</span>
+              <p>• Phase I Environmental Site Assessment</p>
+              <p>• Boundary survey and ALTA title report</p>
+              <p>• Geotechnical / soils report (critical for foundations)</p>
+              <p>• Wetlands and flood zone determination</p>
+              <p>• Utility capacity verification (water, sewer, power)</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Commercial Opportunity Analysis ── */}
+      {(projectTypeId === 'commercial' || projectTypeId === 'mixed-use') && (
+        <div className="card section">
+          <div className="card-header">
+            <h2 className="card-title">Commercial Opportunity Analysis</h2>
+            <span className={`badge ${impliedCap >= 6 ? 'badge-green' : impliedCap >= 4 ? 'badge-blue' : 'badge-gold'}`}>
+              {impliedCap >= 6 ? 'Strong Yield' : impliedCap >= 4 ? 'Market Rate' : 'Low Yield'}
+            </span>
+          </div>
+          <div className="ds2-recs-grid">
+            <div className="ds2-rec-card">
+              <span className="ds2-rec-label">Income & NOI Analysis</span>
+              <p>Gross Annual Rent: <strong>{money(annualGrossRent)}</strong></p>
+              <p>NOI (28% expense ratio): <strong>{money(noiCommercial)}</strong></p>
+              <p>Implied Cap Rate: <strong>{impliedCap.toFixed(1)}%</strong> at {money(calc.stabilizedValue)}</p>
+              <p>Benchmarks: retail 5.5–7%, office 6–8%, industrial 4–6%</p>
+            </div>
+            <div className="ds2-rec-card">
+              <span className="ds2-rec-label">NNN vs. Gross Lease</span>
+              <p>NNN equivalent rent: <strong>{money(nnnEquiv)}/mo per unit</strong> (est. 15% premium)</p>
+              <p>NNN: tenant pays taxes, insurance, maintenance — lower landlord burden</p>
+              <p>Gross: landlord pays all expenses — better for tenant attraction</p>
+              <p>Modified gross: common middle ground for small commercial</p>
+            </div>
+            <div className="ds2-rec-card">
+              <span className="ds2-rec-label">Financing Options</span>
+              <p>• SBA 504: owner-occupied, up to $5M, 10% down</p>
+              <p>• Conventional: 70–75% LTV, 1.25x DSCR minimum</p>
+              <p>• CMBS: non-recourse, 5–10yr fixed, pooled securitization</p>
+              <p>• Bridge: 65–75% LTV, 12–36 months for value-add plays</p>
+            </div>
+            <div className="ds2-rec-card">
+              <span className="ds2-rec-label">Tenant Considerations</span>
+              <p>• National credit (NNN): highest value, 10–20yr leases</p>
+              <p>• Local businesses: shorter leases, more flexible terms</p>
+              <p>• Lenders prefer 5+ years remaining on primary lease at close</p>
+              <p>• Commercial vacancies average 12–24 months to backfill</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Multifamily Development Analysis ── */}
+      {(projectTypeId === 'mf-groundup' || projectTypeId === 'mf-convert') && (
+        <div className="card section">
+          <div className="card-header">
+            <h2 className="card-title">Multifamily Development Analysis</h2>
+            <span className={`badge ${calc.costPerUnit <= 200000 ? 'badge-green' : calc.costPerUnit <= 350000 ? 'badge-blue' : 'badge-gold'}`}>
+              {calc.costPerUnit <= 200000 ? 'Efficient Cost' : calc.costPerUnit <= 350000 ? 'Market Rate' : 'High Cost Basis'}
+            </span>
+          </div>
+          <div className="ds2-recs-grid">
+            <div className="ds2-rec-card">
+              <span className="ds2-rec-label">Per-Unit Economics</span>
+              <p>Cost per unit: <strong>{money(calc.costPerUnit)}</strong></p>
+              <p>Rent per unit: <strong>{money(rentNum)}/mo</strong></p>
+              <p>Gross Rent Multiplier (GRM): <strong>{grm > 0 ? grm.toFixed(1) : '—'}x</strong></p>
+              <p>Agency GRM benchmarks: 10–14x multifamily</p>
+            </div>
+            <div className="ds2-rec-card">
+              <span className="ds2-rec-label">Agency Financing Thresholds</span>
+              <p>Freddie Mac SBL: 5+ units, $1M–$7.5M, 80% LTV</p>
+              <p>Fannie DUS: 5+ units, $1M+, non-recourse, 10yr fixed</p>
+              <p>HUD 221(d)(4): 20+ units, 40yr am., 87% LTV</p>
+              <p>DSCR minimum: 1.25x agency; 1.10–1.20x bridge lenders</p>
+            </div>
+            <div className="ds2-rec-card">
+              <span className="ds2-rec-label">Construction Risk Factors</span>
+              <p>• Fixed-price GC contract — avoid cost-plus over $500K</p>
+              <p>• 5–7 monthly construction draws typical</p>
+              <p>• Lease-up period: budget 90–180 days post-delivery</p>
+              <p>• Stabilization: 90% occupied for 3 months before refi</p>
+            </div>
+            <div className="ds2-rec-card">
+              <span className="ds2-rec-label">Value-Add Strategies</span>
+              <p>• Rent bump $50/unit = {money(50 * numUnitsN * 12 / 0.06)} in value at 6% cap</p>
+              <p>• RUBS (utility billing): +$40–80/unit/mo to NOI</p>
+              <p>• Ancillary income: parking, storage, laundry</p>
+              <p>• Unit renovation: $50–$150/unit/mo rent premium per $8K–$15K invested</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Highest & Best Use ── */}
+      <div className="card section">
+        <div className="card-header">
+          <h2 className="card-title">Highest & Best Use Analysis</h2>
+          <span className="badge badge-blue">{pt.label}</span>
+        </div>
+        <div className="ds2-recs-grid">
+          <div className="ds2-rec-card">
+            <span className="ds2-rec-label">Selected Program</span>
+            <p><strong>{pt.icon} {pt.label}</strong></p>
+            <p>{BEST_USE[projectTypeId]}</p>
+          </div>
+          <div className="ds2-rec-card">
+            <span className="ds2-rec-label">Alternative Uses to Consider</span>
+            {projectTypeId === 'sfr-reno'    && <><p>• ADU addition: add rental unit to parcel (if zoning permits)</p><p>• Short-term rental: 40–80% income premium in demand markets</p><p>• House hack: live in one unit, rent the other to offset mortgage</p></>}
+            {projectTypeId === 'adu'         && <><p>• Junior ADU (JADU): lower cost, no separate utility connection</p><p>• Garage conversion: lowest-cost option, typically $40K–$90K</p><p>• Compare LTR vs. STR income before selecting strategy</p></>}
+            {projectTypeId === 'land'        && <><p>• Entitled lot sale: sell with permits for 20–40% premium</p><p>• Build-to-rent: develop and hold SFR at scale</p><p>• Ground lease: preserve land ownership with income stream</p></>}
+            {projectTypeId === 'commercial'  && <><p>• Residential conversion: office-to-residential active in many markets</p><p>• Medical/flex: higher credit tenants, longer leases</p><p>• Industrial/flex: strongest national fundamentals, lowest vacancy</p></>}
+            {projectTypeId === 'mixed-use'   && <><p>• Pure residential: simpler financing, broader buyer pool</p><p>• Live-work units: attractive to creative and professional tenants</p><p>• Ground-floor retail anchor drives residential lease-up momentum</p></>}
+            {projectTypeId === 'mf-groundup' && <><p>• Build-to-rent SFR: premium in suburban markets</p><p>• LIHTC affordable: trades at premium cap rates, subsidy capital</p><p>• Model BTR vs. condo sell-off exit strategies</p></>}
+            {projectTypeId === 'mf-convert'  && <><p>• Condo conversion: sell individual units for premium vs. rental hold</p><p>• Rent-then-sell: stabilize at market rent, sell as investment</p><p>• Ground-floor commercial: retain for NOI improvement</p></>}
+          </div>
+          <div className="ds2-rec-card">
+            <span className="ds2-rec-label">Current Program Returns</span>
+            <p>Feasibility Score: <strong>{calc.fs}/100</strong></p>
+            <p>Project ROI: <strong>{fmtPct(calc.roi)}</strong></p>
+            <p>Dev. Margin: <strong>{fmtPct(calc.devMargin)}</strong></p>
+            <p>Est. Profit: <strong>{money(calc.profit)}</strong> over {form.timelineMonths} months</p>
+          </div>
+          <div className="ds2-rec-card">
+            <span className="ds2-rec-label">Market Validation Steps</span>
+            <p>• Pull submarket absorption data (CoStar, LoopNet, Yardi)</p>
+            <p>• Confirm zoning flexibility before redesigning the program</p>
+            <p>• Get 3 broker opinions of value for stabilized asset</p>
+            <p>• Validate rent assumptions with active lease comps within 0.5 mi</p>
           </div>
         </div>
       </div>

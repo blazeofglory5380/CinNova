@@ -9,12 +9,14 @@ const fmtP = n => (typeof n === 'number' ? n.toFixed(1) : '0.0') + '%';
 const sgn  = n => (n >= 0 ? '+' : '−');
 
 const PROMPTS = [
-  { id: 'buy',      icon: '🏠', label: 'Should I buy this property?' },
-  { id: 'cashflow', icon: '💵', label: 'How can I improve cash flow?' },
-  { id: 'risks',    icon: '⚠️', label: 'What risks do you see?' },
-  { id: 'compare',  icon: '📊', label: 'Compare this to my portfolio' },
-  { id: 'offer',    icon: '🤝', label: 'What offer price should I make?' },
-  { id: 'beginner', icon: '🎓', label: 'Is this good for a beginner investor?' },
+  { id: 'buy',        icon: '🏠', label: 'Should I buy this property?' },
+  { id: 'cashflow',   icon: '💵', label: 'How can I improve cash flow?' },
+  { id: 'risks',      icon: '⚠️', label: 'What risks do you see?' },
+  { id: 'compare',    icon: '📊', label: 'Compare this to my portfolio' },
+  { id: 'offer',      icon: '🤝', label: 'What offer price should I make?' },
+  { id: 'renovation', icon: '🔨', label: 'Renovation opportunities?' },
+  { id: 'hold',       icon: '📅', label: 'How long should I hold this?' },
+  { id: 'beginner',   icon: '🎓', label: 'Is this good for a beginner investor?' },
 ];
 
 /* ── Response generator ──────────────────────────────────────────────── */
@@ -50,6 +52,12 @@ function buildResponse(question, prop, port) {
   }
   if (q.includes('offer') || (q.includes('price') && q.includes('make')) || q.includes('negotiate')) {
     return offerResponse(addr, price, rent, capRate, score);
+  }
+  if (q.includes('renovat') || q.includes('rehab') || q.includes('remodel') || q.includes('upgrade')) {
+    return renovationResponse(addr, price, rent, cashFlow, capRate, score, type);
+  }
+  if (q.includes('how long') || (q.includes('hold') && !q.includes('cash flow')) || q.includes('when should i sell') || q.includes('exit')) {
+    return holdPeriodResponse(addr, price, rent, cashFlow, capRate, score, type, port);
   }
   if (q.includes('beginner') || q.includes('first time') || q.includes('new investor') || q.includes('starter')) {
     return beginnerResponse(addr, price, cashFlow, capRate, score, type);
@@ -250,6 +258,78 @@ function beginnerResponse(addr, price, cashFlow, capRate, score, type) {
       `Hire a property manager for year one (7–10% of rent) to learn the operation without burning out.`,
     ]},
     { type: 'action', text: 'Run Deal Analyzer →', route: '/deal-analyzer' },
+  ];
+}
+
+function renovationResponse(addr, price, rent, cashFlow, capRate, score, type) {
+  const renoRentPremium = Math.round(rent * 0.10);
+  const lightRenovValue = Math.round(price * 0.06);
+  const fullRenovValue  = Math.round(price * 0.12);
+  const carryPerMo      = Math.round(price * 0.008);
+
+  return [
+    { type: 'text', text: `Renovation value-add analysis for ${addr} at ${fmtM(price)}:` },
+    { type: 'heading', text: 'Highest-ROI Renovation Scopes' },
+    { type: 'bullets', items: [
+      `Kitchen remodel ($15K–$45K): 70–80% ROI — the single highest-impact interior upgrade for resale and rental premium.`,
+      `Bathroom updates ($8K–$25K per bath): 60–70% ROI — cosmetic upgrades (vanity, tile, fixtures) outperform full gut renovations in most markets.`,
+      `Curb appeal ($3K–$8K): 80–100% ROI — landscaping, paint, and front door upgrades drive 3–5% price premiums at resale.`,
+      `HVAC replacement ($6K–$15K): 70–75% ROI — critical for tenant retention and vacancy reduction; a deferred HVAC is a deal negotiation tool.`,
+      `Flooring upgrade ($4K–$12K): 65–75% ROI — LVP flooring enables ${fmtM(Math.round(rent * 0.06))}–${fmtM(Math.round(rent * 0.10))}/mo rent premium for minimal cost.`,
+    ]},
+    { type: 'heading', text: 'Value-Add Potential' },
+    { type: 'bullets', items: [
+      `Light cosmetic renovation ($15K–$25K): estimated +${fmtM(lightRenovValue)} in market value and +${fmtM(Math.round(renoRentPremium * 0.6))}/mo rent premium.`,
+      `Full interior renovation ($40K–$65K): estimated +${fmtM(fullRenovValue)} in value and +${fmtM(renoRentPremium)}/mo rent premium — check ARV comps before committing.`,
+      `Appreciation play: a renovated property can compress cap rate from ${fmtP(capRate)} to ${fmtP(capRate - 0.5)}–${fmtP(capRate - 1)} — translate that to ${fmtM(Math.round(price * 0.06))}–${fmtM(Math.round(price * 0.12))} of additional exit value.`,
+    ]},
+    { type: 'heading', text: 'Execution Risks' },
+    { type: 'bullets', items: [
+      `Always get 3 contractor bids — use fixed-price contracts for scopes over $15K to cap downside.`,
+      `Pre-1980 properties: allocate 15–20% contingency for electrical, plumbing, and insulation surprises.`,
+      `Carrying cost during renovation at typical rates: ${fmtM(carryPerMo)}/mo — factor into your total all-in cost.`,
+      `Pull permits on structural, electrical, and plumbing work — unpermitted additions create title issues at resale.`,
+    ]},
+    { type: 'action', text: 'Open Development Studio →', route: '/dev-studio' },
+  ];
+}
+
+function holdPeriodResponse(addr, price, rent, cashFlow, capRate, score, type, port) {
+  const dp           = price * 0.20;
+  const annualCF     = cashFlow * 12;
+  const appRate      = 0.05; // 5% assumption
+  const total3yr     = annualCF * 3  + (price * (Math.pow(1 + appRate, 3)  - 1));
+  const total5yr     = annualCF * 5  + (price * (Math.pow(1 + appRate, 5)  - 1));
+  const total7yr     = annualCF * 7  + (price * (Math.pow(1 + appRate, 7)  - 1));
+  const totalRet3yr  = dp > 0 ? (total3yr  / dp * 100) : 0;
+  const totalRet5yr  = dp > 0 ? (total5yr  / dp * 100) : 0;
+  const totalRet7yr  = dp > 0 ? (total7yr  / dp * 100) : 0;
+  const annualDepr   = Math.round(price * 0.85 / 27.5);
+  const recommended  = capRate >= 6 && cashFlow > 400 ? '7–10 years'
+    : capRate >= 4 && cashFlow >= 0 ? '5–7 years'
+    : cashFlow < 0 ? '3–5 years (appreciation play)'
+    : '5–7 years';
+
+  return [
+    { type: 'text', text: `Hold period analysis for ${addr} at ${fmtM(price)} (20% down, 5% annual appreciation assumed):` },
+    { type: 'heading', text: 'Total Return by Hold Horizon' },
+    { type: 'bullets', items: [
+      `3-Year hold: est. total return ${fmtM(Math.round(total3yr))} · ${totalRet3yr.toFixed(0)}% on invested capital. Crosses short-term cap gains threshold; limited depreciation benefit.`,
+      `5-Year hold: est. total return ${fmtM(Math.round(total5yr))} · ${totalRet5yr.toFixed(0)}% on invested capital. Qualifies for 1031 exchange; depreciation recapture begins to matter.`,
+      `7-Year hold: est. total return ${fmtM(Math.round(total7yr))} · ${totalRet7yr.toFixed(0)}% on invested capital. Maximum compounding; strongest case for 1031 into larger asset.`,
+    ]},
+    { type: 'verdict', label: `Recommended Hold: ${recommended}`, color: 'blue' },
+    { type: 'heading', text: 'Tax & Exit Considerations' },
+    { type: 'bullets', items: [
+      `Depreciation: claim ~${fmtM(annualDepr)}/yr over a 27.5-year schedule — shields rental income from ordinary tax throughout the hold.`,
+      `1031 exchange: defer all capital gains tax by rolling proceeds into a like-kind property at any point (typically most efficient at 5yr+ with meaningful appreciation).`,
+      `Long-term cap gains: hold 12+ months — qualifies for 0%, 15%, or 20% rate vs. ordinary income (up to 37%).`,
+      cashFlow < 0
+        ? `Negative cash flow of ${fmtM(Math.abs(cashFlow))}/mo adds ${fmtM(Math.abs(cashFlow) * 12)}/yr to your out-of-pocket cost — factor this into total hold cost before projecting returns.`
+        : `Positive cash flow of ${fmtM(cashFlow)}/mo generates ${fmtM(annualCF)}/yr in spendable income — reinvest into reserves or next down payment to accelerate portfolio growth.`,
+      `Exit cap rate risk: if local cap rates expand 0.5% at exit, expect a ${fmtM(Math.round(price * 0.05))}–${fmtM(Math.round(price * 0.08))} discount to today's value — price your hold duration against cycle risk.`,
+    ]},
+    { type: 'action', text: 'Model Cash Flow Over Time →', route: '/cash-flow' },
   ];
 }
 
