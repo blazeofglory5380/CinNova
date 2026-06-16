@@ -148,10 +148,11 @@ function buildReport(selectedProperty) {
   const negotiation = getNegotiationResult();
   const documents   = getSavedDocs();
   const portfolio   = getPortfolio();
-  const devAnalyses = safeJson('cinnova_dev_analyses') || [];
-  const devAnalysis = devAnalyses.find(d =>
+  const devAnalyses  = safeJson('cinnova_dev_analyses') || [];
+  const devAnalysis  = devAnalyses.find(d =>
     d.address === (selectedProperty.fullAddress || selectedProperty.address)
   ) || devAnalyses[0] || null;
+  const archAnalysis = safeJson('cinnova_arch_analysis');
 
   /* Is in portfolio? */
   const inPortfolio = portfolio.some(p =>
@@ -236,6 +237,7 @@ function buildReport(selectedProperty) {
     portfolio,
     inPortfolio,
     devAnalysis,
+    archAnalysis,
     finance: { price, rent, mortgage, taxes, insurance, expenses, vacancy, noi, cashFlow, capRate, downPmt, loanAmt, cashOnCash, grm, arv, arvUpside },
     development: { cost: devCost, value: devValue, profit: devProfit, roi: devRoi, feasibility: devFs, hasStudioData: Boolean(devAnalysis) },
     riskBreakdown,
@@ -340,7 +342,7 @@ export default function PropertyReport() {
     );
   }
 
-  const { property, analysis, market, neighborhood, negotiation, documents, finance, development, riskBreakdown, verdictReasons, scoreComponents, overallScore, verdict, verdictMeta, actions } = report;
+  const { property, analysis, market, neighborhood, negotiation, documents, finance, development, archAnalysis, riskBreakdown, verdictReasons, scoreComponents, overallScore, verdict, verdictMeta, actions } = report;
   const { color } = verdictMeta;
 
   return (
@@ -589,11 +591,44 @@ export default function PropertyReport() {
           </div>
         </ReportSection>
 
-        {/* ── Sections 8–9: Negotiation + Documents ── */}
+        {/* ── Section 8: Architecture Intelligence (conditional) ── */}
+        {archAnalysis && (
+          <ReportSection number="8" title="Architecture Intelligence" badge={`${archAnalysis.archScore}/100`} badgeTone={archAnalysis.archScore >= 80 ? 'green' : archAnalysis.archScore >= 65 ? 'blue' : 'gold'}>
+            <div className="pr-two-col pr-two-col--inner">
+              <div>
+                <div className="pr-row-list">
+                  <Row label="File Analyzed"          value={archAnalysis.file.name} />
+                  <Row label="Rooms Detected"         value={`${archAnalysis.totalRooms} rooms`} />
+                  <Row label="Gross Sq Ft"            value={`${archAnalysis.sqft.gross.toLocaleString()} sqft`} />
+                  <Row label="Usable Sq Ft"           value={`${archAnalysis.sqft.usable.toLocaleString()} sqft`} />
+                  <Row label="ADU Opportunity"        value={archAnalysis.adu.feasible ? `Yes — ${archAnalysis.adu.types.join(', ')}` : 'Limited'} tone={archAnalysis.adu.feasible ? 'green' : 'gold'} />
+                  <Row label="Dev Feasibility Score"  value={`${archAnalysis.devFeasibility.score}/100 — ${archAnalysis.devFeasibility.recommendation}`} tone={archAnalysis.devFeasibility.score >= 70 ? 'green' : 'blue'} />
+                </div>
+              </div>
+              <div>
+                <div className="pr-row-list">
+                  <Row label="Top Renovation Area"   value={`${archAnalysis.renovation.items[0]?.area || '—'} — ${archAnalysis.renovation.items[0]?.roi || 0}% ROI`} tone="green" />
+                  <Row label="Total Value-Add Est."  value={fmt$K(archAnalysis.renovation.totalValueAdd)} tone="teal" />
+                  <Row label="Light Reno Cost"       value={`${fmt$K(archAnalysis.costTiers.light.total)} ($${archAnalysis.costTiers.light.perSqft}/sqft)`} />
+                  <Row label="Full Reno Cost"        value={`${fmt$K(archAnalysis.costTiers.full.total)} ($${archAnalysis.costTiers.full.perSqft}/sqft)`} />
+                  {archAnalysis.adu.feasible && (
+                    <Row label="ADU Est. Monthly Rent" value={money(archAnalysis.adu.monthlyRent)} tone="teal" />
+                  )}
+                  <Row label="Materials Estimate"    value={fmt$K(archAnalysis.materials.reduce((s, m) => s + m.qty * m.unitCost, 0))} />
+                </div>
+              </div>
+            </div>
+            <div className="pr-no-print" style={{ marginTop: 12 }}>
+              <button className="btn btn-ghost" type="button" onClick={() => navigate('/architecture')}>Open Architecture Intelligence →</button>
+            </div>
+          </ReportSection>
+        )}
+
+        {/* ── Sections 9–10: Negotiation + Documents ── */}
         <div className="pr-two-col" style={{ pageBreakBefore: 'always' }}>
 
           {/* Section 8: Negotiation Position */}
-          <ReportSection number="8" title="Negotiation Position" badge={negotiation ? `${negotiation.strength}/100` : 'Not Analyzed'} badgeTone={negotiation ? (negotiation.strength >= 70 ? 'green' : negotiation.strength >= 50 ? 'blue' : 'gold') : 'gray'}>
+          <ReportSection number="9" title="Negotiation Position" badge={negotiation ? `${negotiation.strength}/100` : 'Not Analyzed'} badgeTone={negotiation ? (negotiation.strength >= 70 ? 'green' : negotiation.strength >= 50 ? 'blue' : 'gold') : 'gray'}>
             {negotiation ? (
               <>
                 <div className="pr-summary-grid pr-summary-grid--two">
@@ -629,7 +664,7 @@ export default function PropertyReport() {
           </ReportSection>
 
           {/* Section 9: Document Findings */}
-          <ReportSection number="9" title="Document Findings" badge={documents?.length ? `${documents.length} Document${documents.length !== 1 ? 's' : ''}` : 'No Documents'} badgeTone={documents?.length ? 'green' : 'gray'}>
+          <ReportSection number="10" title="Document Findings" badge={documents?.length ? `${documents.length} Document${documents.length !== 1 ? 's' : ''}` : 'No Documents'} badgeTone={documents?.length ? 'green' : 'gray'}>
             {documents && documents.length > 0 ? (
               <div className="pr-doc-list">
                 {documents.slice(0, 6).map((doc, i) => (
@@ -661,7 +696,7 @@ export default function PropertyReport() {
         </div>
 
         {/* ── Section 10: Recommended Next Actions ── */}
-        <ReportSection number="10" title="Recommended Next Actions" badge={`${actions.length} Actions`} badgeTone="teal" pageBreak>
+        <ReportSection number="11" title="Recommended Next Actions" badge={`${actions.length} Actions`} badgeTone="teal" pageBreak>
           <p className="pr-copy">
             The following actions are prioritized based on deal score ({overallScore}/100), current due diligence status, and market conditions.
           </p>

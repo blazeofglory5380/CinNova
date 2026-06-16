@@ -22,6 +22,7 @@ import CashFlowAnalyzer from './pages/CashFlowAnalyzer';
 import PortfolioDashboard from './pages/PortfolioDashboard';
 import PhotoGallery from './pages/PhotoGallery';
 import DevStudio from './pages/DevStudio';
+import ArchitectureIntelligence from './pages/ArchitectureIntelligence';
 import './styles/global.css';
 import './App.css';
 
@@ -67,6 +68,9 @@ export default function App() {
               <Route path="/photo-gallery"   element={<PhotoGallery />} />
               <Route path="/dev-studio"      element={<DevStudio />} />
               <Route path="/development-studio" element={<DevStudio />} />
+              <Route path="/architecture"    element={<ArchitectureIntelligence />} />
+              <Route path="/bim"             element={<ArchitectureIntelligence />} />
+              <Route path="/architecture-intelligence" element={<ArchitectureIntelligence />} />
             </Routes>
           </main>
         </div>

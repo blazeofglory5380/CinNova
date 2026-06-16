@@ -24,6 +24,7 @@ const DocumentIcon   = () => <svg width="16" height="16" viewBox="0 0 18 18" fil
 const NegIcon        = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M3 9.5L5.8 6.7C6.6 5.9 7.8 5.8 8.7 6.5L9.4 7.1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M15 9.4L12.1 6.6C11.3 5.9 10.1 5.8 9.3 6.5L7.8 7.8C7.4 8.2 7.4 8.8 7.8 9.2L10.3 8.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M5.8 10.6L8.7 13.2C9.5 13.9 10.7 13.9 11.5 13.1L13.1 11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 const BotIcon        = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="6" width="14" height="9" rx="2.5" stroke="currentColor" strokeWidth="1.5"/><circle cx="6.5" cy="10.5" r="1" fill="currentColor"/><circle cx="11.5" cy="10.5" r="1" fill="currentColor"/><path d="M9 2V6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><circle cx="9" cy="1.8" r="1.2" fill="currentColor"/></svg>;
 const DevIcon        = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M5.5 9L8 11.5L12.5 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M2 5.5H16" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg>;
+const ArchIcon       = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="4" width="13" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.5"/><path d="M2.5 7.5H15.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/><path d="M6.5 4V7.5M11.5 4V7.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/><path d="M5.5 10.5h2.5M5.5 12.5h5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>;
 const ChevronIcon    = ({ open }) => (
   <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
     style={{ transform: open ? 'rotate(180deg)' : 'none', transition: '0.2s' }}>
@@ -97,7 +98,8 @@ const SECTIONS = [
     id: 'bim',
     label: 'Development / BIM',
     primary: [
-      { to: '/dev-studio', label: 'Development Studio', icon: DevIcon, end: false },
+      { to: '/dev-studio',    label: 'Development Studio',      icon: DevIcon,  end: false },
+      { to: '/architecture',  label: 'Architecture & BIM',      icon: ArchIcon, end: false },
     ],
   },
 ];
