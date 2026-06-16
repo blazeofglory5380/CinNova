@@ -449,3 +449,255 @@
     gap: 4px;
   }
 }
+
+/* ── Scenario Toggle Bar ─────────────────────────────────── */
+.ds2-scenario-bar {
+  display: flex;
+  gap: 0;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--gray-50);
+}
+
+.ds2-scenario-btn {
+  flex: 1;
+  padding: 9px 14px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--gray-600);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: var(--t);
+  border-right: 1px solid var(--gray-200);
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+
+.ds2-scenario-btn:last-child { border-right: none; }
+.ds2-scenario-btn:hover:not(.active) { background: var(--gray-100); color: var(--gray-800); }
+
+.ds2-scenario-btn.active {
+  color: var(--white);
+  box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.15);
+}
+
+.ds2-scenario-btn.active.ds2-scenario-btn--green { background: var(--success); }
+.ds2-scenario-btn.active.ds2-scenario-btn--blue  { background: var(--blue-600); }
+.ds2-scenario-btn.active.ds2-scenario-btn--gold  { background: var(--gold); }
+.ds2-scenario-btn.active.ds2-scenario-btn--red   { background: var(--danger); }
+
+/* fallback if no color modifier */
+.ds2-scenario-btn.active:not([class*="ds2-scenario-btn--"]) { background: var(--blue-600); }
+
+.ds2-scenario-note {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 7px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid;
+}
+
+.ds2-scenario-note--green { color: var(--success);  background: var(--success-bg);  border-color: var(--success-border); }
+.ds2-scenario-note--blue  { color: var(--blue-700); background: var(--blue-50);     border-color: var(--blue-100);       }
+.ds2-scenario-note--gold  { color: var(--gold);     background: var(--gold-50);     border-color: var(--gold-200);       }
+.ds2-scenario-note--red   { color: var(--danger);   background: var(--danger-bg);   border-color: var(--danger-border);  }
+
+/* ── Shared pos / neg colors ─────────────────────────────── */
+.ds2-pos { color: var(--success); }
+.ds2-neg { color: var(--danger);  }
+
+/* ── Scenario Comparison Table ───────────────────────────── */
+.ds2-scen-table-wrap {
+  overflow-x: auto;
+}
+
+.ds2-scen-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.ds2-scen-table th,
+.ds2-scen-table td {
+  padding: 11px 16px;
+  text-align: right;
+  border-bottom: 1px solid var(--gray-100);
+  white-space: nowrap;
+}
+
+.ds2-scen-table th:first-child,
+.ds2-scen-table td:first-child {
+  text-align: left;
+  font-weight: 700;
+  color: var(--gray-700);
+  white-space: normal;
+}
+
+.ds2-scen-table thead th {
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gray-500);
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--gray-200);
+}
+
+.ds2-scen-table tbody tr:last-child td { border-bottom: none; }
+
+.ds2-scen-table .ds2-scen-row--sub td {
+  color: var(--gray-500);
+  font-size: 12px;
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
+
+.ds2-scen-table .ds2-scen-active {
+  background: var(--blue-50);
+  font-weight: 700;
+  color: var(--blue-700);
+}
+
+.ds2-scen-fs {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.ds2-scen-fs--green { background: var(--success-bg);  color: var(--success);  border: 1px solid var(--success-border); }
+.ds2-scen-fs--blue  { background: var(--blue-50);     color: var(--blue-700); border: 1px solid var(--blue-100); }
+.ds2-scen-fs--gold  { background: var(--gold-50);     color: var(--gold);     border: 1px solid var(--gold-200); }
+.ds2-scen-fs--red   { background: var(--danger-bg);   color: var(--danger);   border: 1px solid var(--danger-border); }
+
+/* ── Sensitivity Analysis Table ──────────────────────────── */
+.ds2-sens-table-wrap {
+  overflow-x: auto;
+}
+
+.ds2-sens-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.ds2-sens-table th,
+.ds2-sens-table td {
+  padding: 11px 16px;
+  text-align: right;
+  border-bottom: 1px solid var(--gray-100);
+  white-space: nowrap;
+}
+
+.ds2-sens-table th:first-child,
+.ds2-sens-table td:first-child { text-align: left; }
+
+.ds2-sens-table thead th {
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gray-500);
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--gray-200);
+}
+
+.ds2-sens-table tbody tr:last-child td { border-bottom: none; }
+
+.ds2-sens-row--base {
+  background: var(--blue-50);
+  font-weight: 700;
+}
+
+.ds2-sens-label {
+  font-weight: 700;
+  color: var(--gray-800);
+}
+
+.ds2-sens-row--base .ds2-sens-label {
+  color: var(--blue-700);
+}
+
+.ds2-sens-dash {
+  color: var(--gray-400);
+  font-size: 16px;
+}
+
+/* ── Development Recommendation Card ────────────────────── */
+.ds2-rec-action {
+  border-left: 4px solid;
+}
+
+.ds2-rec-action--green { border-left-color: var(--success);  }
+.ds2-rec-action--blue  { border-left-color: var(--blue-600); }
+.ds2-rec-action--gold  { border-left-color: var(--gold);     }
+.ds2-rec-action--red   { border-left-color: var(--danger);   }
+
+.ds2-rec-action-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.ds2-rec-action-verdict { }
+
+.ds2-rec-action-label {
+  display: block;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.6px;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.ds2-rec-action-label--green { color: var(--success);  }
+.ds2-rec-action-label--blue  { color: var(--blue-700); }
+.ds2-rec-action-label--gold  { color: var(--gold);     }
+.ds2-rec-action-label--red   { color: var(--danger);   }
+
+.ds2-rec-action-verdict p {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-700);
+  line-height: 1.6;
+}
+
+.ds2-rec-action-criteria { }
+
+.ds2-criteria-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.ds2-criteria-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.ds2-criteria-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ds2-criteria-dot--pass { background: var(--success); }
+.ds2-criteria-dot--fail { background: var(--danger);  }
+
+.ds2-criteria-label { flex: 1; }
+
+.ds2-criteria-pass { color: var(--success); font-weight: 800; }
+.ds2-criteria-fail { color: var(--danger);  font-weight: 800; }
+
+@media (max-width: 760px) {
+  .ds2-rec-action-body { grid-template-columns: 1fr; }
+}

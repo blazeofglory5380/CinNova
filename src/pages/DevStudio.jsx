@@ -38,6 +38,61 @@ const NEXT_STEP = {
   red:   'Project needs fundamental restructuring. Renegotiate acquisition price significantly, revisit the project program, or identify alternative uses that improve the return profile.',
 };
 
+/* ── Scenario mode ───────────────────────────────────────── */
+const SCENARIO_PARAMS = {
+  conservative: {
+    label:       'Conservative',
+    description: '+10% construction cost · −8% value · +4 months',
+    costMult:    1.10,
+    valueMult:   0.92,
+    rentMult:    0.92,
+    timelineAdd: 4,
+    contAdd:     3,
+  },
+  base: {
+    label:       'Base Case',
+    description: 'Your current input assumptions',
+    costMult:    1.00,
+    valueMult:   1.00,
+    rentMult:    1.00,
+    timelineAdd: 0,
+    contAdd:     0,
+  },
+  aggressive: {
+    label:       'Aggressive',
+    description: '−5% construction cost · +8% value · −2 months',
+    costMult:    0.95,
+    valueMult:   1.08,
+    rentMult:    1.08,
+    timelineAdd: -2,
+    contAdd:     -2,
+  },
+};
+
+const SENSITIVITY_TESTS = [
+  { key: 'base',        label: 'Base Case',              costMult: 1.00, valueMult: 1.00, rentMult: 1.00, timelineAdd: 0, contAdd: 0 },
+  { key: 'costUp10',    label: 'If cost rises 10%',      costMult: 1.10, valueMult: 1.00, rentMult: 1.00, timelineAdd: 0, contAdd: 0 },
+  { key: 'valueDown10', label: 'If resale drops 10%',    costMult: 1.00, valueMult: 0.90, rentMult: 1.00, timelineAdd: 0, contAdd: 0 },
+  { key: 'timeline6mo', label: 'If timeline +6 months',  costMult: 1.00, valueMult: 1.00, rentMult: 1.00, timelineAdd: 6, contAdd: 0 },
+  { key: 'rentDown10',  label: 'If rents are 10% lower', costMult: 1.00, valueMult: 1.00, rentMult: 0.90, timelineAdd: 0, contAdd: 0 },
+];
+
+/* ── Development recommendation ──────────────────────────── */
+const RECOMMENDATION_MAP = {
+  proceed:      { label: 'Proceed',      color: 'green', badge: 'badge-green', detail: 'Project fundamentals support moving forward. Commission site analysis, Phase I environmental, and initiate lender pre-qualification. Lock in a fixed-price GC contract.' },
+  revise:       { label: 'Revise Scope', color: 'blue',  badge: 'badge-blue',  detail: 'Good foundation with margin to improve. Negotiate acquisition price down 5–8%, tighten construction scope, or increase unit count to strengthen the return profile.' },
+  seek_partner: { label: 'Seek Partner', color: 'gold',  badge: 'badge-gold',  detail: 'Marginal as a solo deal. Bring in a preferred equity or JV partner to reduce capital exposure. Explore programmatic changes or density bonuses to improve feasibility.' },
+  avoid:        { label: 'Avoid',        color: 'red',   badge: 'badge-red',   detail: 'Project does not pencil at current assumptions. Significantly renegotiate acquisition price, increase density, or identify an alternative use before committing capital.' },
+};
+
+function getRecommendation(fs) {
+  if (fs >= 70) return RECOMMENDATION_MAP.proceed;
+  if (fs >= 55) return RECOMMENDATION_MAP.revise;
+  if (fs >= 40) return RECOMMENDATION_MAP.seek_partner;
+  return RECOMMENDATION_MAP.avoid;
+}
+
+/* ── Helpers ─────────────────────────────────────────────── */
 const money = v => {
   const n = Math.abs(v);
   const sign = v < 0 ? '-' : '';
@@ -76,17 +131,52 @@ function riskLabel(fs) {
   return 'High';
 }
 
+/* Compute financials for any scenario multiplier set */
+function computeScenario(form, sm) {
+  const acq      = Number(form.acquisitionPrice) || 0;
+  const propSqft = Number(form.proposedSqft)     || 0;
+  const units    = Math.max(1, Number(form.numUnits) || 1);
+  const costSqft = (Number(form.constructionCostSqft) || 0) * sm.costMult;
+  const softPct  = (Number(form.softCostPct) || 0) / 100;
+  const contPct  = Math.max(0, (Number(form.contingencyPct) || 0) + (sm.contAdd || 0)) / 100;
+  const rent     = (Number(form.rentPerUnit) || 0) * sm.rentMult;
+  const resale   = (Number(form.resaleValue) || 0) * sm.valueMult;
+  const capRateN = (Number(form.capRate) || 5.5) / 100;
+
+  const hardCost     = propSqft * costSqft;
+  const softCost     = hardCost * softPct;
+  const contingency  = (hardCost + softCost) * contPct;
+  const totalDevCost = hardCost + softCost + contingency;
+
+  const extraCarry = sm.timelineAdd > 0 ? acq * 0.0075 * sm.timelineAdd : 0;
+  const totalProjectCost = acq + totalDevCost + extraCarry;
+  const costPerUnit      = totalProjectCost / units;
+
+  const annualRent      = rent * units * 12;
+  const stabilizedValue = resale > 0 ? resale : (capRateN > 0 ? (annualRent * 0.72) / capRateN : 0);
+
+  const profit    = stabilizedValue - totalProjectCost;
+  const roi       = totalProjectCost > 0 ? (profit / totalProjectCost) * 100 : 0;
+  const devMargin = stabilizedValue  > 0 ? (profit / stabilizedValue)  * 100 : 0;
+  const fs        = feasibilityScore(roi, devMargin, profit);
+
+  return { hardCost, softCost, contingency, totalDevCost, totalProjectCost, costPerUnit, annualRent, stabilizedValue, profit, roi, devMargin, fs, breakEven: totalProjectCost };
+}
+
+/* ── Main component ──────────────────────────────────────── */
 export default function DevStudio() {
   const navigate = useNavigate();
   const selectedProperty = getSelectedProperty();
 
-  const [projectTypeId, setProjectTypeId] = useState('sfr-reno');
-  const [saved, setSaved] = useState(false);
+  const [projectTypeId,  setProjectTypeId]  = useState('sfr-reno');
+  const [saved,          setSaved]          = useState(false);
+  const [analysisSaved,  setAnalysisSaved]  = useState(false);
+  const [scenario,       setScenario]       = useState('base');
 
   const pt = PROJECT_TYPES.find(p => p.id === projectTypeId);
 
   const [form, setForm] = useState({
-    acquisitionPrice: selectedProperty?.price ? String(Math.round(selectedProperty.price)) : '450000',
+    acquisitionPrice:     selectedProperty?.price ? String(Math.round(selectedProperty.price)) : '450000',
     lotSize:              '6500',
     existingSqft:         '1200',
     proposedSqft:         '1800',
@@ -103,6 +193,7 @@ export default function DevStudio() {
   const setField = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }));
     setSaved(false);
+    setAnalysisSaved(false);
   };
 
   const selectType = p => {
@@ -114,8 +205,10 @@ export default function DevStudio() {
       softCostPct:          String(p.defaultSoft),
     }));
     setSaved(false);
+    setAnalysisSaved(false);
   };
 
+  /* Base calc (form inputs as-is) */
   const calc = useMemo(() => {
     const acq      = Number(form.acquisitionPrice)      || 0;
     const propSqft = Number(form.proposedSqft)          || 0;
@@ -134,29 +227,42 @@ export default function DevStudio() {
     const totalProjectCost = acq + totalDevCost;
     const costPerUnit      = totalProjectCost / units;
 
-    const annualRent    = rent * units * 12;
-    const stabilizedValue = resale > 0
-      ? resale
-      : capRateN > 0 ? (annualRent * 0.72) / capRateN : 0;
+    const annualRent      = rent * units * 12;
+    const stabilizedValue = resale > 0 ? resale : (capRateN > 0 ? (annualRent * 0.72) / capRateN : 0);
 
     const profit    = stabilizedValue - totalProjectCost;
     const roi       = totalProjectCost > 0 ? (profit / totalProjectCost) * 100 : 0;
     const devMargin = stabilizedValue  > 0 ? (profit / stabilizedValue)  * 100 : 0;
     const fs        = feasibilityScore(roi, devMargin, profit);
 
-    return {
-      hardCost, softCost, contingency,
-      totalDevCost, totalProjectCost, costPerUnit,
-      annualRent, stabilizedValue,
-      profit, roi, devMargin, fs,
-      breakEven: totalProjectCost,
-    };
+    return { hardCost, softCost, contingency, totalDevCost, totalProjectCost, costPerUnit, annualRent, stabilizedValue, profit, roi, devMargin, fs, breakEven: totalProjectCost };
   }, [form]);
 
-  const color = scoreColor(calc.fs);
-  const risk  = riskLabel(calc.fs);
+  /* Scenario-adjusted calc (used for KPIs / feasibility display) */
+  const scenarioCalc = useMemo(
+    () => computeScenario(form, SCENARIO_PARAMS[scenario]),
+    [form, scenario]
+  );
 
-  // Type-specific derived values
+  /* All 3 scenarios for comparison table */
+  const scenarioComparison = useMemo(() => ({
+    conservative: computeScenario(form, SCENARIO_PARAMS.conservative),
+    base:         computeScenario(form, SCENARIO_PARAMS.base),
+    aggressive:   computeScenario(form, SCENARIO_PARAMS.aggressive),
+  }), [form]);
+
+  /* Sensitivity tests */
+  const sensitivity = useMemo(
+    () => SENSITIVITY_TESTS.map(t => ({ ...t, result: computeScenario(form, t) })),
+    [form]
+  );
+
+  /* Derived display values — use scenario-adjusted calc */
+  const color = scoreColor(scenarioCalc.fs);
+  const risk  = riskLabel(scenarioCalc.fs);
+  const rec   = getRecommendation(scenarioCalc.fs);
+
+  // Type-specific derived values (always from base calc / form)
   const acqNum    = Number(form.acquisitionPrice) || 0;
   const rentNum   = Number(form.rentPerUnit)       || 0;
   const capRateN  = (Number(form.capRate) || 5.5)  / 100;
@@ -165,30 +271,25 @@ export default function DevStudio() {
   const costSqftN = Number(form.constructionCostSqft) || 0;
   const numUnitsN = Math.max(1, Number(form.numUnits) || 1);
 
-  // ADU metrics
   const aduBuildCost  = propSqftN * costSqftN * (1 + (Number(form.softCostPct) + Number(form.contingencyPct)) / 100);
   const aduPaybackYrs = rentNum > 0 && aduBuildCost > 0 ? aduBuildCost / (rentNum * 12) : 0;
   const aduIncomeVal  = rentNum > 0 && capRateN > 0 ? (rentNum * 12 * 0.72) / capRateN : 0;
   const aduValueAdded = aduIncomeVal - aduBuildCost;
 
-  // Renovation metrics
   const arvVal     = Number(form.resaleValue) > 0 ? Number(form.resaleValue) : acqNum * 1.20;
   const rule70     = arvVal * 0.70 - calc.hardCost;
   const flipMargin = arvVal > 0 ? ((arvVal - calc.totalProjectCost) / arvVal * 100) : 0;
 
-  // Land metrics
   const monthlyCarry   = acqNum * 0.015 / 12;
   const entitleCost    = acqNum * 0.04;
   const totalWithCarry = acqNum + entitleCost + (monthlyCarry * monthsNum);
   const landNetProfit  = calc.stabilizedValue - totalWithCarry;
 
-  // Commercial metrics
   const annualGrossRent = rentNum * numUnitsN * 12;
   const noiCommercial   = annualGrossRent * 0.72;
   const nnnEquiv        = rentNum * 1.15;
   const impliedCap      = calc.stabilizedValue > 0 ? (noiCommercial / calc.stabilizedValue) * 100 : 0;
 
-  // Multifamily per-unit
   const grm = rentNum > 0 ? (calc.stabilizedValue / (rentNum * numUnitsN * 12)) : 0;
 
   const handleSave = () => {
@@ -206,6 +307,26 @@ export default function DevStudio() {
     setSaved(true);
   };
 
+  const saveDevAnalysis = () => {
+    const data = {
+      id:             Date.now(),
+      timestamp:      new Date().toISOString(),
+      projectType:    pt.label,
+      address:        selectedProperty?.fullAddress || selectedProperty?.address || `${pt.label} Project`,
+      form,
+      feasibility:    calc.fs,
+      roi:            calc.roi,
+      profit:         calc.profit,
+      recommendation: rec.label,
+      scenarios:      scenarioComparison,
+    };
+    try {
+      const existing = JSON.parse(localStorage.getItem('cinnova_dev_analyses') || '[]');
+      localStorage.setItem('cinnova_dev_analyses', JSON.stringify([data, ...existing].slice(0, 20)));
+    } catch {}
+    setAnalysisSaved(true);
+  };
+
   return (
     <div className="page">
 
@@ -218,7 +339,7 @@ export default function DevStudio() {
           </p>
         </div>
         <div className={`ds2-score-badge ds2-score-badge--${color}`}>
-          <span className="ds2-score-value">{calc.fs}</span>
+          <span className="ds2-score-value">{scenarioCalc.fs}</span>
           <span className="ds2-score-label">Feasibility Score</span>
         </div>
       </div>
@@ -372,7 +493,7 @@ export default function DevStudio() {
           <div className="card">
             <div className="card-header">
               <h2 className="card-title">Cost Breakdown</h2>
-              <span className="badge badge-gray">Live</span>
+              <span className="badge badge-gray">Base Inputs</span>
             </div>
             <div className="ds2-cost-list">
               <div className="ds2-cost-row">
@@ -402,36 +523,55 @@ export default function DevStudio() {
             </div>
           </div>
 
+          {/* Scenario Toggle */}
+          <div className="ds2-scenario-bar">
+            {Object.entries(SCENARIO_PARAMS).map(([key, s]) => (
+              <button
+                key={key}
+                type="button"
+                className={`ds2-scenario-btn${scenario === key ? ' active ds2-scenario-btn--' + scoreColor(scenarioComparison[key].fs) : ''}`}
+                onClick={() => setScenario(key)}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+          {scenario !== 'base' && (
+            <div className={`ds2-scenario-note ds2-scenario-note--${color}`}>
+              {SCENARIO_PARAMS[scenario].description}
+            </div>
+          )}
+
           {/* KPI Cards */}
           <div className="ds2-kpi-grid">
-            <div className={`ds2-kpi ds2-kpi--${calc.profit >= 0 ? 'green' : 'red'}`}>
+            <div className={`ds2-kpi ds2-kpi--${scenarioCalc.profit >= 0 ? 'green' : 'red'}`}>
               <span className="ds2-kpi-label">Est. Profit</span>
-              <strong>{money(calc.profit)}</strong>
+              <strong>{money(scenarioCalc.profit)}</strong>
               <span className="ds2-kpi-sub">Value minus total cost</span>
             </div>
-            <div className={`ds2-kpi ds2-kpi--${calc.roi >= 15 ? 'green' : calc.roi >= 8 ? 'blue' : 'gold'}`}>
+            <div className={`ds2-kpi ds2-kpi--${scenarioCalc.roi >= 15 ? 'green' : scenarioCalc.roi >= 8 ? 'blue' : 'gold'}`}>
               <span className="ds2-kpi-label">ROI</span>
-              <strong>{fmtPct(calc.roi)}</strong>
+              <strong>{fmtPct(scenarioCalc.roi)}</strong>
               <span className="ds2-kpi-sub">Return on project cost</span>
             </div>
-            <div className={`ds2-kpi ds2-kpi--${calc.devMargin >= 20 ? 'green' : calc.devMargin >= 12 ? 'teal' : 'gold'}`}>
+            <div className={`ds2-kpi ds2-kpi--${scenarioCalc.devMargin >= 20 ? 'green' : scenarioCalc.devMargin >= 12 ? 'teal' : 'gold'}`}>
               <span className="ds2-kpi-label">Dev. Margin</span>
-              <strong>{fmtPct(calc.devMargin)}</strong>
+              <strong>{fmtPct(scenarioCalc.devMargin)}</strong>
               <span className="ds2-kpi-sub">Profit ÷ stabilized value</span>
             </div>
             <div className="ds2-kpi ds2-kpi--blue">
               <span className="ds2-kpi-label">Cost per Unit</span>
-              <strong>{money(calc.costPerUnit)}</strong>
+              <strong>{money(scenarioCalc.costPerUnit)}</strong>
               <span className="ds2-kpi-sub">{form.numUnits} unit{Number(form.numUnits) !== 1 ? 's' : ''}</span>
             </div>
             <div className="ds2-kpi ds2-kpi--teal">
               <span className="ds2-kpi-label">Stabilized Value</span>
-              <strong>{money(calc.stabilizedValue)}</strong>
+              <strong>{money(scenarioCalc.stabilizedValue)}</strong>
               <span className="ds2-kpi-sub">{Number(form.resaleValue) > 0 ? 'From resale input' : `At ${form.capRate}% cap rate`}</span>
             </div>
             <div className="ds2-kpi ds2-kpi--blue">
               <span className="ds2-kpi-label">Break-Even Value</span>
-              <strong>{money(calc.breakEven)}</strong>
+              <strong>{money(scenarioCalc.breakEven)}</strong>
               <span className="ds2-kpi-sub">Minimum exit required</span>
             </div>
           </div>
@@ -446,14 +586,14 @@ export default function DevStudio() {
                 </p>
               </div>
               <div className="ds2-feasibility-score">
-                <span>{calc.fs}</span>
+                <span>{scenarioCalc.fs}</span>
                 <small>/100</small>
               </div>
             </div>
             <div className="ds2-feasibility-track">
               <div
                 className={`ds2-feasibility-fill ds2-feasibility-fill--${color}`}
-                style={{ width: `${calc.fs}%` }}
+                style={{ width: `${scenarioCalc.fs}%` }}
               />
             </div>
             <div className="ds2-feasibility-zones">
@@ -463,6 +603,183 @@ export default function DevStudio() {
               <span>Excellent</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* ── Development Recommendation ── */}
+      <div className={`card section ds2-rec-action ds2-rec-action--${rec.color}`}>
+        <div className="card-header">
+          <h2 className="card-title">Development Recommendation</h2>
+          <span className={`badge ${rec.badge}`}>{rec.label}</span>
+        </div>
+        <div className="ds2-rec-action-body">
+          <div className="ds2-rec-action-verdict">
+            <span className={`ds2-rec-action-label ds2-rec-action-label--${rec.color}`}>{rec.label}</span>
+            <p>{rec.detail}</p>
+          </div>
+          <div className="ds2-rec-action-criteria">
+            <span className="ds2-rec-label">Criteria Summary</span>
+            <div className="ds2-criteria-rows">
+              {[
+                { label: 'Feasibility Score', val: `${scenarioCalc.fs}/100`, pass: scenarioCalc.fs >= 55 },
+                { label: 'Project ROI',        val: fmtPct(scenarioCalc.roi),       pass: scenarioCalc.roi >= 15 },
+                { label: 'Dev. Margin',        val: fmtPct(scenarioCalc.devMargin), pass: scenarioCalc.devMargin >= 15 },
+                { label: 'Est. Profit',        val: money(scenarioCalc.profit),      pass: scenarioCalc.profit > 0 },
+              ].map(c => (
+                <div key={c.label} className="ds2-criteria-row">
+                  <span className={`ds2-criteria-dot ${c.pass ? 'ds2-criteria-dot--pass' : 'ds2-criteria-dot--fail'}`} />
+                  <span className="ds2-criteria-label">{c.label}</span>
+                  <strong className={c.pass ? 'ds2-criteria-pass' : 'ds2-criteria-fail'}>{c.val}</strong>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Scenario Comparison ── */}
+      <div className="card section">
+        <div className="card-header">
+          <h2 className="card-title">Scenario Comparison</h2>
+          <span className="badge badge-blue">3 Scenarios</span>
+        </div>
+        <div className="ds2-scen-table-wrap">
+          <table className="ds2-scen-table">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th className={scenario === 'conservative' ? 'ds2-scen-active' : ''}>Conservative</th>
+                <th className={scenario === 'base' ? 'ds2-scen-active' : ''}>Base Case</th>
+                <th className={scenario === 'aggressive' ? 'ds2-scen-active' : ''}>Aggressive</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="ds2-scen-row--sub">
+                <td>Construction Cost</td>
+                <td className={scenario === 'conservative' ? 'ds2-scen-active' : ''}>+10%</td>
+                <td className={scenario === 'base' ? 'ds2-scen-active' : ''}>Base</td>
+                <td className={scenario === 'aggressive' ? 'ds2-scen-active' : ''}>−5%</td>
+              </tr>
+              <tr className="ds2-scen-row--sub">
+                <td>Resale / Rent Value</td>
+                <td className={scenario === 'conservative' ? 'ds2-scen-active' : ''}>−8%</td>
+                <td className={scenario === 'base' ? 'ds2-scen-active' : ''}>Base</td>
+                <td className={scenario === 'aggressive' ? 'ds2-scen-active' : ''}>+8%</td>
+              </tr>
+              <tr className="ds2-scen-row--sub">
+                <td>Timeline Shift</td>
+                <td className={scenario === 'conservative' ? 'ds2-scen-active' : ''}>+4 months</td>
+                <td className={scenario === 'base' ? 'ds2-scen-active' : ''}>—</td>
+                <td className={scenario === 'aggressive' ? 'ds2-scen-active' : ''}>−2 months</td>
+              </tr>
+              <tr className="ds2-scen-row--sub">
+                <td>Contingency Adj.</td>
+                <td className={scenario === 'conservative' ? 'ds2-scen-active' : ''}>+3%</td>
+                <td className={scenario === 'base' ? 'ds2-scen-active' : ''}>—</td>
+                <td className={scenario === 'aggressive' ? 'ds2-scen-active' : ''}>−2%</td>
+              </tr>
+              <tr>
+                <td>Total Project Cost</td>
+                {['conservative','base','aggressive'].map(k => (
+                  <td key={k} className={scenario === k ? 'ds2-scen-active' : ''}>
+                    <strong>{money(scenarioComparison[k].totalProjectCost)}</strong>
+                  </td>
+                ))}
+              </tr>
+              <tr>
+                <td>Stabilized Value</td>
+                {['conservative','base','aggressive'].map(k => (
+                  <td key={k} className={scenario === k ? 'ds2-scen-active' : ''}>
+                    {money(scenarioComparison[k].stabilizedValue)}
+                  </td>
+                ))}
+              </tr>
+              <tr>
+                <td>Est. Profit</td>
+                {['conservative','base','aggressive'].map(k => {
+                  const v = scenarioComparison[k].profit;
+                  return (
+                    <td key={k} className={scenario === k ? 'ds2-scen-active' : ''}>
+                      <strong className={v >= 0 ? 'ds2-pos' : 'ds2-neg'}>{money(v)}</strong>
+                    </td>
+                  );
+                })}
+              </tr>
+              <tr>
+                <td>ROI</td>
+                {['conservative','base','aggressive'].map(k => (
+                  <td key={k} className={scenario === k ? 'ds2-scen-active' : ''}>
+                    {fmtPct(scenarioComparison[k].roi)}
+                  </td>
+                ))}
+              </tr>
+              <tr>
+                <td>Dev. Margin</td>
+                {['conservative','base','aggressive'].map(k => (
+                  <td key={k} className={scenario === k ? 'ds2-scen-active' : ''}>
+                    {fmtPct(scenarioComparison[k].devMargin)}
+                  </td>
+                ))}
+              </tr>
+              <tr>
+                <td>Feasibility Score</td>
+                {['conservative','base','aggressive'].map(k => {
+                  const fs = scenarioComparison[k].fs;
+                  return (
+                    <td key={k} className={scenario === k ? 'ds2-scen-active' : ''}>
+                      <span className={`ds2-scen-fs ds2-scen-fs--${scoreColor(fs)}`}>{fs}</span>
+                    </td>
+                  );
+                })}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* ── Sensitivity Analysis ── */}
+      <div className="card section">
+        <div className="card-header">
+          <h2 className="card-title">Sensitivity Analysis</h2>
+          <span className="badge badge-teal">5 Stress Tests</span>
+        </div>
+        <div className="ds2-sens-table-wrap">
+          <table className="ds2-sens-table">
+            <thead>
+              <tr>
+                <th>Scenario</th>
+                <th>Est. Profit</th>
+                <th>Profit Δ</th>
+                <th>ROI</th>
+                <th>Feasibility</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sensitivity.map(t => {
+                const r = t.result;
+                const delta = r.profit - calc.profit;
+                const isBase = t.key === 'base';
+                return (
+                  <tr key={t.key} className={isBase ? 'ds2-sens-row--base' : ''}>
+                    <td className="ds2-sens-label">{t.label}</td>
+                    <td>
+                      <strong className={r.profit >= 0 ? 'ds2-pos' : 'ds2-neg'}>{money(r.profit)}</strong>
+                    </td>
+                    <td>
+                      {isBase
+                        ? <span className="ds2-sens-dash">—</span>
+                        : <span className={delta >= 0 ? 'ds2-pos' : 'ds2-neg'}>{delta >= 0 ? '+' : ''}{money(delta)}</span>
+                      }
+                    </td>
+                    <td>{fmtPct(r.roi)}</td>
+                    <td>
+                      <span className={`ds2-scen-fs ds2-scen-fs--${scoreColor(r.fs)}`}>{r.fs}</span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -754,13 +1071,24 @@ export default function DevStudio() {
           onClick={handleSave}
           disabled={saved}
         >
-          {saved ? 'Saved to Portfolio' : 'Save to Portfolio'}
+          {saved ? '✓ Saved to Portfolio' : 'Save to Portfolio'}
         </button>
-        <button type="button" className="btn btn-teal" onClick={() => navigate('/deal-analyzer')}>
+        <button type="button" className="btn btn-ghost" onClick={() => navigate('/deal-analyzer')}>
           Analyze Deal
         </button>
-        <button type="button" className="btn btn-outline" onClick={() => navigate('/advisor')}>
+        <button type="button" className="btn btn-ghost" onClick={() => navigate('/advisor')}>
           Ask AI Advisor
+        </button>
+        <button type="button" className="btn btn-ghost" onClick={() => navigate('/report')}>
+          Send to Report
+        </button>
+        <button
+          type="button"
+          className={`btn ${analysisSaved ? 'btn-ghost' : 'btn-ghost'}`}
+          onClick={saveDevAnalysis}
+          disabled={analysisSaved}
+        >
+          {analysisSaved ? '✓ Analysis Saved' : 'Save Analysis'}
         </button>
       </div>
 
