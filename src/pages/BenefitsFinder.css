@@ -1,0 +1,221 @@
+/* ── Search panel ───────────────────────────────────────── */
+.bf-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.bf-location-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+/* ── User type buttons ──────────────────────────────────── */
+.user-type-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ut-btn {
+  padding: 9px 22px;
+  border-radius: var(--r-lg);
+  border: 1.5px solid var(--gray-200);
+  background: var(--white);
+  color: var(--gray-600);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.16s ease;
+}
+.ut-btn:hover {
+  border-color: var(--blue-300);
+  color: var(--blue-700);
+  background: var(--blue-50);
+}
+.ut-btn--active {
+  background: linear-gradient(135deg, var(--blue-600), var(--blue-700));
+  border-color: var(--blue-700);
+  color: var(--white);
+  box-shadow: var(--shadow-blue);
+}
+
+/* ── Results section ────────────────────────────────────── */
+.bf-results { margin-top: 8px; }
+
+/* Summary banner */
+.results-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, var(--blue-50), var(--teal-50));
+  border: 1px solid var(--blue-100);
+  border-radius: var(--r-lg);
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.results-banner-text {
+  font-size: 14px;
+  color: var(--gray-700);
+}
+
+.results-summary-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ── Tab bar ────────────────────────────────────────────── */
+.tab-bar {
+  display: flex;
+  gap: 4px;
+  background: var(--gray-100);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  padding: 4px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: var(--r-md);
+  border: none;
+  background: transparent;
+  color: var(--gray-500);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s ease;
+  white-space: nowrap;
+  flex: 1;
+  justify-content: center;
+}
+.tab-btn:hover { background: var(--white); color: var(--gray-700); }
+
+.tab-btn--active {
+  background: var(--white);
+  color: var(--blue-700);
+  box-shadow: var(--shadow-sm);
+}
+
+.tab-count {
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--gray-200);
+  color: var(--gray-500);
+  border-radius: var(--r-full);
+  padding: 1px 7px;
+}
+.tab-count--active {
+  background: var(--blue-100);
+  color: var(--blue-700);
+}
+
+/* ── Programs grid ──────────────────────────────────────── */
+.programs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* ── Program card ───────────────────────────────────────── */
+.program-card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: var(--shadow-xs);
+  transition: 0.18s ease;
+}
+.program-card:hover {
+  border-color: var(--blue-200);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.program-card-top {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.program-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gray-900);
+  line-height: 1.35;
+}
+
+.program-benefit {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--teal-700);
+  background: var(--teal-50);
+  border: 1px solid var(--teal-200);
+  border-radius: var(--r-sm);
+  padding: 5px 10px;
+  display: inline-block;
+}
+
+.program-desc {
+  font-size: 13px;
+  color: var(--gray-500);
+  line-height: 1.6;
+  flex: 1;
+}
+
+.program-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--gray-100);
+  flex-wrap: wrap;
+}
+
+.program-amount {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.program-amount-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.program-amount-value {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--gray-900);
+}
+
+.program-tags {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .programs-grid   { grid-template-columns: 1fr; }
+  .bf-location-row { grid-template-columns: 1fr; }
+  .tab-bar         { justify-content: flex-start; }
+  .tab-btn         { flex: none; }
+}

@@ -1,0 +1,494 @@
+/* ── Layout ──────────────────────────────────────── */
+.mc-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.mc-inputs  { display: flex; flex-direction: column; gap: 20px; }
+.mc-results { display: flex; flex-direction: column; gap: 20px; }
+.mc-fields  { display: flex; flex-direction: column; gap: 22px; }
+.mc-field   { display: flex; flex-direction: column; gap: 8px; }
+
+/* ── Banners ─────────────────────────────────────── */
+.mc-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.mc-banner--warn {
+  background: #fffbeb;
+  border-left: 4px solid var(--gold);
+  color: #78350f;
+}
+
+.mc-banner--info {
+  background: #f0fdf4;
+  border-left: 4px solid var(--success);
+  color: var(--gray-800);
+}
+
+.mc-banner-meta {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 13px;
+  color: var(--gray-500);
+  font-weight: 500;
+}
+
+/* ── Slider field ────────────────────────────────── */
+.mc-field-hdr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mc-field-hdr label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gray-700);
+}
+
+.mc-val {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--blue-700);
+  background: var(--blue-50);
+  border: 1px solid var(--blue-100);
+  padding: 3px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.mc-range {
+  width: 100%;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--gray-200);
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.mc-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--blue-600), var(--blue-700));
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+  cursor: pointer;
+}
+
+.mc-note { font-size: 10px; color: var(--gray-400); font-weight: 500; }
+
+/* ── Loan term buttons ───────────────────────────── */
+.mc-term-btns { display: flex; gap: 6px; }
+
+.mc-term-btn {
+  flex: 1;
+  padding: 8px 6px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 8px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: 0.14s;
+}
+
+.mc-term-btn.active { background: var(--blue-700); color: white; border-color: var(--blue-700); }
+.mc-term-btn:hover:not(.active) { border-color: var(--blue-400); color: var(--blue-700); }
+
+/* ── Derived loan amount display ─────────────────── */
+.mc-derived-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+}
+
+.mc-derived-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gray-500);
+}
+
+.mc-derived-val {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--gray-900);
+}
+
+/* ── Start date picker ───────────────────────────── */
+.mc-date-row { display: flex; gap: 8px; }
+
+.mc-select {
+  flex: 1;
+  padding: 9px 10px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gray-700);
+  background: var(--white);
+  cursor: pointer;
+  outline: none;
+  transition: 0.14s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.mc-select:hover  { border-color: var(--blue-400); }
+.mc-select:focus  { border-color: var(--blue-600); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+/* ── Total monthly payment card (dark) ───────────── */
+.mc-total-card {
+  background: linear-gradient(145deg, #0a1628, #1a3a6e);
+  border-radius: 16px;
+  padding: 28px;
+  text-align: center;
+  color: white;
+}
+
+.mc-total-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin-bottom: 8px;
+}
+
+.mc-total-amt {
+  font-size: 48px;
+  font-weight: 900;
+  color: white;
+  letter-spacing: -1.5px;
+  line-height: 1;
+}
+
+.mc-total-sub {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.45);
+  margin-bottom: 20px;
+}
+
+.mc-donut-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.mc-breakdown { display: flex; flex-direction: column; gap: 8px; }
+
+.mc-breakdown-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.mc-breakdown-dot    { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.mc-breakdown-label  { flex: 1; font-size: 13px; color: rgba(255,255,255,0.65); text-align: left; }
+.mc-breakdown-val    { font-size: 14px; font-weight: 800; color: white; }
+.mc-breakdown-pct    { font-size: 11px; color: rgba(255,255,255,0.4); min-width: 30px; text-align: right; }
+
+/* ── Loan summary grid ───────────────────────────── */
+.mc-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.mc-sum-item {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-100);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mc-sum-item span   { font-size: 11px; color: var(--gray-500); font-weight: 600; }
+.mc-sum-item strong { font-size: 14px; font-weight: 900; color: var(--gray-900); }
+.mc-sum-item .pos   { color: var(--success); }
+.mc-sum-item .neg   { color: var(--danger); }
+
+/* ── Affordability insight ───────────────────────── */
+.mc-afford-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.mc-afford-item {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-100);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mc-afford-item span {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mc-afford-item strong {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--gray-900);
+  letter-spacing: -0.5px;
+}
+
+.mc-afford-item em {
+  font-size: 11px;
+  color: var(--gray-400);
+  font-style: normal;
+}
+
+.mc-afford-dti { grid-column: 1 / -1; }
+
+.mc-dti-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.mc-dti-bar {
+  position: relative;
+  height: 10px;
+  background: var(--gray-200);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.mc-dti-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--success), var(--blue-600));
+  border-radius: 5px;
+  width: 70%;
+}
+
+.mc-dti-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mc-dti-labels span {
+  font-size: 11px;
+  color: var(--gray-400);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.mc-dti-guideline {
+  font-size: 11px;
+  color: var(--blue-700) !important;
+  font-weight: 700 !important;
+}
+
+.mc-afford-rec {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.mc-afford-rec p { margin: 0; color: var(--gray-700); }
+.mc-afford-rec--ok   { background: var(--success-bg);  border: 1px solid var(--success-border); }
+.mc-afford-rec--warn { background: var(--gold-50);      border: 1px solid var(--gold-200); }
+
+/* ── Investment score card ───────────────────────── */
+.mc-invest-card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 16px;
+  padding: 22px;
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 18px;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.mc-invest-score {
+  display: block;
+  font-size: 46px;
+  font-weight: 900;
+  line-height: 1;
+  margin-top: 6px;
+}
+
+.mc-risk {
+  display: inline-flex;
+  margin-top: 10px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mc-risk--low      { background: var(--success-bg); color: var(--success); }
+.mc-risk--moderate { background: var(--blue-50);    color: var(--blue-700); }
+.mc-risk--elevated { background: var(--gold-50);    color: var(--gold); }
+.mc-risk--high     { background: var(--danger-bg);  color: var(--danger); }
+
+.mc-invest-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.mc-invest-metrics div {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-100);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.mc-invest-metrics span   { display: block; font-size: 11px; color: var(--gray-500); font-weight: 700; margin-bottom: 5px; }
+.mc-invest-metrics strong { font-size: 15px; font-weight: 900; color: var(--gray-900); }
+.mc-invest-metrics .pos   { color: var(--success); }
+.mc-invest-metrics .neg   { color: var(--danger); }
+
+/* ── Quick actions ───────────────────────────────── */
+.mc-quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Amortization table ──────────────────────────── */
+.mc-table-wrap { overflow-x: auto; }
+
+.mc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.mc-table th {
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--gray-200);
+  white-space: nowrap;
+}
+
+.mc-table td {
+  padding: 10px 10px;
+  border-bottom: 1px solid var(--gray-100);
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.mc-table tr:hover td { background: var(--blue-50); }
+.mc-table .pos { color: var(--blue-700); }
+.mc-table .neg { color: var(--danger); }
+
+.mc-amort-note {
+  font-size: 12px;
+  color: var(--gray-500);
+  padding: 14px 4px 4px;
+  line-height: 1.7;
+  border-top: 1px solid var(--gray-100);
+  margin-top: 12px;
+}
+
+/* ── Amortization bar chart ──────────────────────── */
+.mc-amort-bar-preview { padding: 8px 0; }
+
+.mc-amort-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 120px;
+  position: relative;
+  padding-bottom: 20px;
+}
+
+.mc-amort-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  height: 100%;
+}
+
+.mc-amort-bar {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column-reverse;
+  border-radius: 2px 2px 0 0;
+  overflow: hidden;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.mc-amort-bar > div  { flex-shrink: 0; }
+.mc-amort-bar-col > span { font-size: 9px; color: var(--gray-400); text-align: center; }
+
+.mc-amort-legend {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--gray-600);
+}
+
+.mc-amort-legend em {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 4px;
+  font-style: normal;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 900px) {
+  .mc-layout       { grid-template-columns: 1fr; }
+  .mc-total-amt    { font-size: 36px; }
+  .mc-invest-card  { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 620px) {
+  .mc-invest-metrics { grid-template-columns: 1fr; }
+  .mc-afford-grid    { grid-template-columns: 1fr; }
+  .mc-afford-dti     { grid-column: 1; }
+}

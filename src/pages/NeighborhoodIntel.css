@@ -1,0 +1,577 @@
+/* ── Header ──────────────────────────────────────────────── */
+.ni-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+/* ── Grade Badge ─────────────────────────────────────────── */
+.ni-grade-badge {
+  flex-shrink: 0;
+  min-width: 118px;
+  border-radius: var(--r-lg);
+  padding: 16px 20px;
+  text-align: right;
+  box-shadow: var(--shadow-sm);
+}
+
+.ni-grade-badge--green { background: linear-gradient(135deg, var(--success-bg), var(--white)); border: 1.5px solid var(--success-border); }
+.ni-grade-badge--blue  { background: linear-gradient(135deg, var(--blue-50),    var(--white)); border: 1.5px solid var(--blue-100);    }
+.ni-grade-badge--gold  { background: linear-gradient(135deg, var(--gold-50),    var(--white)); border: 1.5px solid var(--gold-200);    }
+
+.ni-grade-value {
+  display: block;
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.ni-grade-badge--green .ni-grade-value { color: var(--success);   }
+.ni-grade-badge--blue  .ni-grade-value { color: var(--blue-700);  }
+.ni-grade-badge--gold  .ni-grade-value { color: var(--gold);      }
+
+.ni-grade-label {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--gray-600);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+/* ── Selector Card ───────────────────────────────────────── */
+.ni-selector-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.ni-selector-select {
+  flex: 1;
+  min-width: 200px;
+}
+
+.ni-selector-meta {
+  flex: 2;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-bottom: 2px;
+}
+
+.ni-selector-meta strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gray-700);
+  line-height: 1.4;
+}
+
+/* ── Selected Property Context ───────────────────────────── */
+.ni-property-ctx {
+  background: linear-gradient(135deg, var(--teal-50), var(--white));
+  border: 1.5px solid var(--teal-200);
+  border-radius: var(--r-xl);
+  padding: 18px 22px;
+  box-shadow: var(--shadow-sm);
+}
+
+.ni-property-ctx-inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.ni-property-addr {
+  margin-top: 7px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--gray-900);
+}
+
+.ni-property-meta {
+  margin-top: 3px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-500);
+}
+
+.ni-property-note {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-600);
+  line-height: 1.6;
+  max-width: 380px;
+  align-self: center;
+}
+
+/* ── Identity Banner ─────────────────────────────────────── */
+.ni-identity-banner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  background: linear-gradient(135deg, var(--blue-50), var(--teal-50));
+  border: 1.5px solid var(--blue-100);
+  border-radius: var(--r-xl);
+  padding: 24px 28px;
+  box-shadow: var(--shadow-sm);
+}
+
+.ni-identity-main h2 {
+  margin-top: 9px;
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--gray-900);
+  letter-spacing: -0.5px;
+}
+
+.ni-identity-main p {
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-600);
+  line-height: 1.65;
+  max-width: 500px;
+}
+
+.ni-identity-stats {
+  display: flex;
+  gap: 24px;
+  flex-shrink: 0;
+  align-self: center;
+  flex-wrap: wrap;
+}
+
+.ni-identity-stats > div {
+  text-align: center;
+}
+
+.ni-identity-stats > div span {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ni-identity-stats > div strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--blue-700);
+  letter-spacing: -0.4px;
+}
+
+/* ── Score Rings ─────────────────────────────────────────── */
+.ni-ring-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.ni-ring-card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  box-shadow: var(--shadow-sm);
+}
+
+.ni-ring-card--blue {
+  --ni-ring-color: var(--blue-600);
+  background: linear-gradient(135deg, var(--blue-50), var(--white));
+  border-color: var(--blue-200);
+}
+
+.ni-ring-card--teal {
+  --ni-ring-color: var(--teal-600);
+  background: linear-gradient(135deg, var(--teal-50), var(--white));
+  border-color: var(--teal-200);
+}
+
+.ni-ring {
+  width: 118px;
+  height: 118px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.ni-ring-inner {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px;
+}
+
+.ni-ring-inner span {
+  font-size: 31px;
+  font-weight: 900;
+  color: var(--gray-900);
+  letter-spacing: -0.8px;
+}
+
+.ni-ring-inner small {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--gray-500);
+}
+
+.ni-ring-copy h3 {
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--gray-900);
+}
+
+.ni-ring-copy p {
+  margin-top: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-600);
+}
+
+/* ── KPI Cards ───────────────────────────────────────────── */
+.ni-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.ni-kpi {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  box-shadow: var(--shadow-xs);
+  transition: var(--t);
+}
+
+.ni-kpi:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.ni-kpi--blue  { background: linear-gradient(135deg, var(--blue-50),    var(--white)); border-color: var(--blue-200);    }
+.ni-kpi--teal  { background: linear-gradient(135deg, var(--teal-50),    var(--white)); border-color: var(--teal-200);    }
+.ni-kpi--green { background: linear-gradient(135deg, var(--success-bg), var(--white)); border-color: var(--success-border); }
+.ni-kpi--gold  { background: linear-gradient(135deg, var(--gold-50),    var(--white)); border-color: var(--gold-200);    }
+
+.ni-kpi-label {
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--gray-700);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.ni-kpi strong {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--gray-900);
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.ni-kpi--blue  strong { color: var(--blue-700);  }
+.ni-kpi--teal  strong { color: var(--teal-700);  }
+.ni-kpi--green strong { color: var(--success);   }
+.ni-kpi--gold  strong { color: var(--gold);      }
+
+.ni-kpi-sub {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gray-500);
+}
+
+/* ── Score Bars ──────────────────────────────────────────── */
+.ni-bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ni-bar-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 7px;
+}
+
+.ni-bar-meta span {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gray-700);
+}
+
+.ni-bar-meta strong {
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.ni-bar-val--blue  { color: var(--blue-700);  }
+.ni-bar-val--teal  { color: var(--teal-700);  }
+.ni-bar-val--green { color: var(--success);   }
+.ni-bar-val--gold  { color: var(--gold);      }
+
+.ni-bar-track {
+  height: 8px;
+  background: var(--gray-100);
+  border-radius: var(--r-full);
+  overflow: hidden;
+}
+
+.ni-bar-fill {
+  height: 100%;
+  border-radius: var(--r-full);
+  transition: width 0.5s ease;
+}
+
+.ni-bar-fill--blue  { background: var(--blue-600);  }
+.ni-bar-fill--teal  { background: var(--teal-500);  }
+.ni-bar-fill--green { background: var(--success);   }
+.ni-bar-fill--gold  { background: var(--gold);      }
+
+/* ── Signal / Growth / Risk Lists ────────────────────────── */
+.ni-signal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ni-growth-row,
+.ni-risk-row {
+  border-radius: var(--r-md);
+  padding: 15px;
+  border: 1px solid transparent;
+}
+
+.ni-growth-row {
+  background: linear-gradient(135deg, var(--success-bg), var(--white));
+  border-color: var(--success-border);
+}
+
+.ni-risk-row--gold {
+  background: linear-gradient(135deg, var(--gold-50), var(--white));
+  border-color: var(--gold-200);
+}
+
+.ni-risk-row--red {
+  background: linear-gradient(135deg, var(--danger-bg), var(--white));
+  border-color: var(--danger-border);
+}
+
+.ni-risk-row--blue {
+  background: linear-gradient(135deg, var(--blue-50), var(--white));
+  border-color: var(--blue-100);
+}
+
+.ni-signal-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 7px;
+}
+
+.ni-signal-top h3 {
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--gray-900);
+  line-height: 1.3;
+}
+
+.ni-growth-row p,
+.ni-risk-row p {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-600);
+  line-height: 1.6;
+}
+
+/* ── Comparable Neighborhoods Table ─────────────────────── */
+.ni-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--r-md);
+  border: 1px solid var(--gray-200);
+}
+
+.ni-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.ni-table th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--gray-600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+  white-space: nowrap;
+}
+
+.ni-table td {
+  padding: 13px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-700);
+  border-bottom: 1px solid var(--gray-100);
+  white-space: nowrap;
+}
+
+.ni-table tbody tr:last-child td { border-bottom: none; }
+
+.ni-table-current {
+  background: linear-gradient(90deg, var(--blue-50) 0%, var(--white) 100%);
+}
+
+.ni-table-current td          { color: var(--gray-900); }
+.ni-table-current td strong   { color: var(--blue-700); font-size: 14px; }
+
+.ni-table-comparable {
+  cursor: pointer;
+  transition: var(--t);
+}
+
+.ni-table-comparable:hover {
+  background: var(--gray-50);
+}
+
+/* ── Grade Pills (table) ─────────────────────────────────── */
+.ni-grade-pill {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: var(--r-full);
+  font-size: 12px;
+  font-weight: 800;
+  border: 1px solid transparent;
+}
+
+.ni-grade-pill--green { background: var(--success-bg); color: var(--success);  border-color: var(--success-border); }
+.ni-grade-pill--blue  { background: var(--blue-50);    color: var(--blue-700); border-color: var(--blue-200);       }
+.ni-grade-pill--gold  { background: var(--gold-100);   color: var(--gold);     border-color: var(--gold-200);       }
+
+.ni-table-hint {
+  margin-top: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-400);
+  text-align: center;
+}
+
+/* ── AI Insight ──────────────────────────────────────────── */
+.ni-insight-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gray-700);
+  line-height: 1.75;
+}
+
+/* ── Action Buttons ──────────────────────────────────────── */
+.ni-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 1120px) {
+  .ni-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .ni-ring-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ni-ring-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ni-identity-banner {
+    flex-direction: column;
+  }
+
+  .ni-selector-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ni-selector-select,
+  .ni-selector-meta {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .ni-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ni-grade-badge {
+    text-align: left;
+  }
+
+  .ni-kpi-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ni-identity-stats {
+    gap: 16px;
+  }
+
+  .ni-actions {
+    flex-direction: column;
+  }
+
+  .ni-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 520px) {
+  .ni-kpi-grid,
+  .ni-identity-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .ni-kpi-grid {
+    display: grid;
+  }
+
+  .ni-identity-stats {
+    display: grid;
+    width: 100%;
+  }
+}

@@ -1,0 +1,349 @@
+/* ── Header actions ──────────────────────────────────────── */
+.tc-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Rate hint chip inside label ─────────────────────────── */
+.tc-rate-hint {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--blue-600);
+  background: var(--blue-50);
+  border: 1px solid var(--blue-100);
+  border-radius: var(--r-full);
+  padding: 1px 7px;
+  margin-left: 7px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ── State average note below form ──────────────────────── */
+.tc-state-note {
+  font-size: 12px;
+  color: var(--gray-500);
+  background: var(--blue-50);
+  border: 1px solid var(--blue-100);
+  border-radius: var(--r-md);
+  padding: 9px 14px;
+  margin-top: 16px;
+  line-height: 1.55;
+}
+
+/* ── Tax summary — 4-column stat grid ───────────────────── */
+.tc-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.tc-stat {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--t);
+}
+.tc-stat:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.tc-stat--primary {
+  background: linear-gradient(135deg, var(--blue-50) 0%, var(--teal-50) 100%);
+  border-color: var(--blue-200);
+}
+.tc-stat--gold {
+  background: linear-gradient(135deg, var(--gold-50) 0%, var(--white) 100%);
+  border-color: var(--gold-200);
+}
+.tc-stat--danger {
+  background: linear-gradient(135deg, var(--danger-bg) 0%, var(--white) 100%);
+  border-color: var(--danger-border);
+}
+
+.tc-stat-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.tc-stat-value {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--gray-900);
+  letter-spacing: -0.6px;
+  line-height: 1;
+}
+.tc-stat--primary .tc-stat-value { color: var(--blue-700); }
+.tc-stat--gold    .tc-stat-value { color: var(--gold); }
+.tc-stat--danger  .tc-stat-value { color: var(--danger); }
+
+.tc-stat-sub {
+  font-size: 12px;
+  color: var(--gray-400);
+}
+
+/* ── Tax breakdown rows ──────────────────────────────────── */
+.tc-bdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.tc-bdown-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tc-bdown-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tc-bdown-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tc-bdown-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-700);
+  flex: 1;
+}
+
+.tc-bdown-pct {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gray-400);
+  width: 34px;
+  text-align: right;
+}
+
+.tc-bdown-amt {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--gray-900);
+  width: 80px;
+  text-align: right;
+}
+
+.tc-bdown-track {
+  height: 8px;
+  background: var(--gray-100);
+  border-radius: var(--r-full);
+  overflow: hidden;
+}
+
+.tc-bdown-fill {
+  height: 100%;
+  border-radius: var(--r-full);
+  transition: width 0.6s ease;
+}
+
+/* Breakdown total row */
+.tc-bdown-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, var(--blue-50), var(--teal-50));
+  border: 1px solid var(--blue-200);
+  border-radius: var(--r-md);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gray-800);
+}
+
+.tc-bdown-total-val {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--blue-700);
+}
+
+/* Location note pill */
+.tc-location-note {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--gray-400);
+  margin-top: 12px;
+}
+
+/* ── Projection table ────────────────────────────────────── */
+.tc-proj-wrap {
+  overflow-x: auto;
+}
+
+.tc-proj-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tc-proj-table th {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0 10px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.tc-proj-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--gray-100);
+  vertical-align: middle;
+  font-size: 13px;
+}
+
+.tc-proj-table tr:last-child td { border-bottom: none; }
+.tc-proj-table tbody tr:hover td { background: var(--blue-50); }
+
+.tc-proj-base td {
+  background: linear-gradient(135deg, var(--blue-50), var(--teal-50));
+  font-weight: 700;
+}
+
+.proj-year    { color: var(--gray-700); font-weight: 700; }
+.proj-annual  { color: var(--gray-900); font-weight: 700; }
+.proj-monthly { color: var(--gray-600); }
+
+.proj-delta-zero { color: var(--gray-400); }
+.proj-delta-up   { color: var(--danger); font-weight: 600; }
+
+/* ── Tax Savings section ─────────────────────────────────── */
+.tc-savings-intro {
+  font-size: 14px;
+  color: var(--gray-500);
+  line-height: 1.65;
+  margin-bottom: 20px;
+  max-width: 720px;
+}
+
+/* ── Exemptions 2-column grid ────────────────────────────── */
+.tc-exemptions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* ── Individual exemption card ───────────────────────────── */
+.tc-ex-card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--shadow-xs);
+  transition: var(--t);
+}
+.tc-ex-card:hover {
+  border-color: var(--blue-200);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.tc-ex-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tc-ex-avail {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-400);
+}
+
+.tc-ex-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--gray-900);
+  line-height: 1.25;
+}
+
+.tc-ex-desc {
+  font-size: 13px;
+  color: var(--gray-500);
+  line-height: 1.6;
+  flex: 1;
+}
+
+.tc-ex-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tc-ex-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--gray-600);
+  line-height: 1.4;
+}
+
+.tc-ex-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--teal-400);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.tc-ex-savings {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
+  border-radius: var(--r-md);
+}
+
+.tc-ex-savings-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--success);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.tc-ex-savings-val {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--success);
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .tc-summary-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+  .tc-exemptions-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .tc-summary-grid { grid-template-columns: 1fr; }
+}
