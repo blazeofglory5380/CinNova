@@ -23,9 +23,11 @@ export function normalizeProperty(property) {
     beds: Number(property.beds ?? property.form?.beds ?? 3),
     baths: Number(property.baths ?? property.form?.baths ?? 2),
     sqft: Number(property.sqft ?? property.form?.sqft ?? 1600),
+    units: Number(property.units ?? property.form?.units ?? 1),
     type: property.type || property.form?.type || 'Single Family',
     rent,
     cashFlow: Number(property.cashFlow ?? 0),
+    capRate: Number(property.capRate ?? 0),
     roi: Number(property.roi ?? 0),
     score: Number(property.score ?? property.analysis?.dealScore ?? 82),
   };
@@ -55,7 +57,17 @@ export function propertyToForm(property) {
     beds: String(selected.beds || ''),
     baths: String(selected.baths || ''),
     sqft: String(selected.sqft || ''),
-    type: selected.type === 'Condo' ? 'condo' : selected.type === 'Commercial' ? 'commercial' : 'single-family',
+    type: selected.type === 'Condo'
+      ? 'condo'
+      : selected.type === 'Commercial'
+      ? 'commercial'
+      : selected.type === 'Land'
+      ? 'land'
+      : selected.type === 'Multifamily' || selected.type === 'Duplex'
+      ? 'multi-family'
+      : selected.type === 'Townhouse'
+      ? 'townhouse'
+      : 'single-family',
   };
 }
 

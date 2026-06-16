@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { DEMO_PROPERTIES, PROPERTY_TYPES } from '../data/demoProperties';
 import { selectProperty } from '../services/propertyWorkflow';
 import { addToPortfolio } from '../services/propertyStorage';
 import './InteractiveMap.css';
 
 /* ── Dataset (matches PropertySearch listings + map coordinates) ─────── */
 // mx/my = % position within map, roughly mirroring US geography
-const PROPERTIES = [
+/*
+const LEGACY_PROPERTIES = [
   { id:1,  address:'2140 Brickell Ave',    city:'Miami, FL 33129',        price:847000,  beds:4, baths:3, sqft:2840, type:'Condo',         score:91, roi:8.4,  cashFlow:1240, capRate:4.5, rent:3200, mx:72, my:77 },
   { id:2,  address:'4821 Lake Shore Dr',   city:'Chicago, IL 60614',      price:624000,  beds:3, baths:2, sqft:1920, type:'Condo',         score:84, roi:6.8,  cashFlow:720,  capRate:5.4, rent:2800, mx:51, my:28 },
   { id:3,  address:'918 Congress Ave',     city:'Austin, TX 78701',       price:395000,  beds:2, baths:2, sqft:1240, type:'Single Family', score:88, roi:9.2,  cashFlow:980,  capRate:6.4, rent:2100, mx:38, my:67 },
@@ -26,6 +28,9 @@ const PROPERTIES = [
   { id:17, address:'5542 Rainier Ave S',   city:'Seattle, WA 98118',      price:680000,  beds:3, baths:2, sqft:1800, type:'Single Family', score:83, roi:7.2,  cashFlow:640,  capRate:5.5, rent:3100, mx:9,  my:18 },
   { id:18, address:'820 Tchoupitoulas St', city:'New Orleans, LA 70130',  price:195000,  beds:2, baths:1, sqft:920,  type:'Condo',         score:88, roi:13.5, cashFlow:780,  capRate:9.2, rent:1500, mx:50, my:73 },
 ];
+
+*/
+const PROPERTIES = DEMO_PROPERTIES;
 
 /* ── Helpers ─────────────────────────────────────── */
 function sColor(s) {
@@ -76,7 +81,7 @@ function ListRow({ p, isSelected, onSelect }) {
           <span>{p.capRate.toFixed(1)}% cap</span>
           <span className="imap-dot">·</span>
           <span>{p.type}</span>
-          {p.type !== 'Multifamily' && (
+          {p.units <= 1 && p.type !== 'Land' && (
             <><span className="imap-dot">·</span><span>{p.beds}bd/{p.baths}ba</span></>
           )}
         </div>
@@ -133,16 +138,22 @@ export default function InteractiveMap() {
       address:     p.address,
       fullAddress: `${p.address}, ${p.city}`,
       city:        p.city,
+      market:      p.market,
+      neighborhood:p.neighborhood,
       price:       p.price,
       type:        p.type,
       beds:        p.beds,
       baths:       p.baths,
       sqft:        p.sqft,
+      units:       p.units,
       rent:        p.rent,
       cashFlow:    p.cashFlow,
       capRate:     p.capRate,
       roi:         p.roi,
       score:       p.score,
+      image:       p.image,
+      latitude:    p.latitude,
+      longitude:   p.longitude,
     });
   };
 
@@ -152,11 +163,14 @@ export default function InteractiveMap() {
       id:       selected.id,
       address:  selected.address,
       city:     selected.city,
+      market:   selected.market,
+      neighborhood: selected.neighborhood,
       price:    selected.price,
       type:     selected.type,
       beds:     selected.beds,
       baths:    selected.baths,
       sqft:     selected.sqft,
+      units:    selected.units,
       rent:     selected.rent,
       cashFlow: selected.cashFlow,
       capRate:  selected.capRate,
@@ -220,9 +234,7 @@ export default function InteractiveMap() {
           <div className="imap-filter-row">
             <select className="imap-select" value={fType} onChange={e => setFType(e.target.value)}>
               <option value="all">All Types</option>
-              <option value="Single Family">Single Family</option>
-              <option value="Condo">Condo</option>
-              <option value="Multifamily">Multifamily</option>
+              {PROPERTY_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
             </select>
             <select className="imap-select" value={sort} onChange={e => setSort(e.target.value)}>
               <option value="score">AI Score ↓</option>
@@ -386,10 +398,12 @@ export default function InteractiveMap() {
 
               <div className="imap-detail-type-row">
                 <span className="imap-type-chip">{selected.type}</span>
-                {selected.type !== 'Multifamily' ? (
+                {selected.type === 'Land' ? (
+                  <span>{selected.sqft.toLocaleString()} sqft lot</span>
+                ) : selected.units <= 1 ? (
                   <span>{selected.beds} bd · {selected.baths} ba · {selected.sqft.toLocaleString()} sqft</span>
                 ) : (
-                  <span>{selected.beds} units</span>
+                  <span>{selected.units} units · {selected.sqft.toLocaleString()} sqft</span>
                 )}
               </div>
 

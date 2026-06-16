@@ -1,44 +1,16 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { DEMO_PROPERTIES, MARKETS_LIST, PROPERTY_IMAGES, PROPERTY_TYPES } from '../data/demoProperties';
 import { addCompareProperty, saveWorkflowAnalysis, selectProperty } from '../services/propertyWorkflow';
 import { saveFavorite, removeFavorite, getFavorites, addToPortfolio } from '../services/propertyStorage';
 import './PropertySearch.css';
 
-const PROPERTIES = [
-  { id:1,  address:'2140 Brickell Ave',     city:'Miami, FL 33129',          price:847000,  beds:4, baths:3, sqft:2840, type:'Condo',         score:91, roi:8.4,  cashFlow:1240,  capRate:4.5, rent:3200, img:'residential',  status:'For Sale',    daysListed:12, mode:'invest' },
-  { id:2,  address:'4821 Lake Shore Dr',    city:'Chicago, IL 60614',         price:624000,  beds:3, baths:2, sqft:1920, type:'Condo',         score:84, roi:6.8,  cashFlow:720,   capRate:5.4, rent:2800, img:'highrise',     status:'For Sale',    daysListed:5,  mode:'invest' },
-  { id:3,  address:'918 Congress Ave',      city:'Austin, TX 78701',          price:395000,  beds:2, baths:2, sqft:1240, type:'Single Family', score:88, roi:9.2,  cashFlow:980,   capRate:6.4, rent:2100, img:'singlefamily', status:'For Sale',    daysListed:18, mode:'invest' },
-  { id:4,  address:'7701 Sunset Blvd',      city:'Los Angeles, CA 90046',     price:1240000, beds:4, baths:3, sqft:2200, type:'Single Family', score:76, roi:5.4,  cashFlow:310,   capRate:3.5, rent:4400, img:'luxury',       status:'For Sale',    daysListed:34, mode:'buy'    },
-  { id:5,  address:'220 Peachtree St NE',   city:'Atlanta, GA 30303',         price:285000,  beds:2, baths:1, sqft:980,  type:'Condo',         score:82, roi:10.1, cashFlow:1180,  capRate:7.5, rent:1800, img:'midrise',      status:'For Sale',    daysListed:8,  mode:'invest' },
-  { id:6,  address:'3400 E Camelback Rd',   city:'Phoenix, AZ 85018',         price:520000,  beds:3, baths:2, sqft:1680, type:'Single Family', score:89, roi:8.7,  cashFlow:1050,  capRate:6.0, rent:2600, img:'singlefamily', status:'For Sale',    daysListed:21, mode:'invest' },
-  { id:7,  address:'15 W 65th St',          city:'New York, NY 10023',        price:2100000, beds:3, baths:2, sqft:1400, type:'Condo',         score:72, roi:4.2,  cashFlow:-120,  capRate:3.7, rent:6500, img:'highrise',     status:'For Sale',    daysListed:45, mode:'buy'    },
-  { id:8,  address:'482 Castro St',         city:'San Francisco, CA 94114',   price:1580000, beds:4, baths:3, sqft:2100, type:'Single Family', score:68, roi:3.8,  cashFlow:-340,  capRate:2.8, rent:4800, img:'residential',  status:'For Sale',    daysListed:62, mode:'buy'    },
-  { id:9,  address:'1122 Commerce St',      city:'Dallas, TX 75201',          price:340000,  beds:2, baths:2, sqft:1180, type:'Condo',         score:86, roi:9.6,  cashFlow:1100,  capRate:7.1, rent:2000, img:'midrise',      status:'For Sale',    daysListed:3,  mode:'invest' },
-  { id:10, address:'5880 Delmar Blvd',      city:'St. Louis, MO 63112',       price:198000,  beds:3, baths:1, sqft:1420, type:'Single Family', score:79, roi:11.4, cashFlow:920,   capRate:8.5, rent:1400, img:'singlefamily', status:'For Sale',    daysListed:14, mode:'invest' },
-  { id:11, address:'940 Belmont Ave',       city:'Nashville, TN 37212',       price:465000,  beds:3, baths:2, sqft:1640, type:'Single Family', score:87, roi:7.9,  cashFlow:840,   capRate:5.6, rent:2400, img:'residential',  status:'For Sale',    daysListed:9,  mode:'invest' },
-  { id:12, address:'2001 Blake St',         city:'Denver, CO 80205',          price:510000,  beds:2, baths:2, sqft:1360, type:'Condo',         score:85, roi:8.1,  cashFlow:760,   capRate:5.2, rent:2200, img:'midrise',      status:'For Sale',    daysListed:27, mode:'invest' },
-  { id:13, address:'1440 W Fullerton Ave',  city:'Chicago, IL 60614',         price:1180000, beds:8, baths:8, sqft:5200, type:'Multifamily',   score:93, roi:10.2, cashFlow:2400,  capRate:7.8, rent:7800, img:'multifamily',  status:'For Sale',    daysListed:6,  mode:'invest' },
-  { id:14, address:'2240 San Pablo Ave',    city:'Oakland, CA 94612',         price:890000,  beds:4, baths:4, sqft:3200, type:'Multifamily',   score:86, roi:8.4,  cashFlow:1100,  capRate:6.5, rent:4800, img:'multifamily',  status:'For Sale',    daysListed:19, mode:'invest' },
-  { id:15, address:'3800 Magazine St',      city:'New Orleans, LA 70115',     price:425000,  beds:4, baths:4, sqft:2800, type:'Multifamily',   score:94, roi:12.8, cashFlow:1640,  capRate:8.9, rent:3200, img:'multifamily',  status:'Off-Market',  daysListed:0,  mode:'invest' },
-  { id:16, address:'1204 S Brevard St',     city:'Charlotte, NC 28203',       price:360000,  beds:4, baths:3, sqft:2100, type:'Single Family', score:90, roi:9.8,  cashFlow:1020,  capRate:7.2, rent:2400, img:'singlefamily', status:'For Sale',    daysListed:4,  mode:'invest' },
-  { id:17, address:'5542 Rainier Ave S',    city:'Seattle, WA 98118',         price:680000,  beds:3, baths:2, sqft:1800, type:'Single Family', score:83, roi:7.2,  cashFlow:640,   capRate:5.5, rent:3100, img:'singlefamily', status:'For Sale',    daysListed:11, mode:'invest' },
-  { id:18, address:'820 Tchoupitoulas St',  city:'New Orleans, LA 70130',     price:195000,  beds:2, baths:1, sqft:920,  type:'Condo',         score:88, roi:13.5, cashFlow:780,   capRate:9.2, rent:1500, img:'midrise',      status:'Coming Soon', daysListed:0,  mode:'invest' },
-];
-
-const PROPERTY_IMAGES = {
-  residential:  'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=900&q=80',
-  highrise:     'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=80',
-  singlefamily: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=900&q=80',
-  luxury:       'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80',
-  midrise:      'https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=900&q=80',
-  multifamily:  'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=900&q=80',
-};
-
+const PROPERTIES = DEMO_PROPERTIES;
 const STATUS_LABELS = { 'For Sale': 'FOR SALE', 'Off-Market': 'OFF-MARKET', 'Coming Soon': 'COMING SOON' };
 
-function PropertyImage({ imgKey, price }) {
+function PropertyImage({ imgKey, image, price }) {
   const [err, setErr] = useState(false);
-  const src = PROPERTY_IMAGES[imgKey] || PROPERTY_IMAGES.residential;
+  const src = image || PROPERTY_IMAGES[imgKey] || PROPERTY_IMAGES.residential;
   const fmtPrice = price >= 1e6 ? `$${(price / 1e6).toFixed(2).replace(/\.?0+$/, '')}M` : `$${Math.round(price / 1000)}K`;
   return (
     <>
@@ -72,7 +44,8 @@ function BookmarkIcon({ filled }) {
 }
 
 function PropertyCard({ p, savedIds, onAnalyze, onMortgage, onCashFlow, onAI, onSave, onCompare }) {
-  const isMulti = p.type === 'Multifamily';
+  const isIncomeProperty = p.units > 1 || p.type === 'Multifamily' || p.type === 'Commercial';
+  const isLand = p.type === 'Land';
   const isSaved = savedIds.has(p.id);
   const scoreColor = p.score >= 90 ? '#059669' : p.score >= 80 ? '#2563eb' : p.score >= 70 ? '#d97706' : '#dc2626';
   const statusCls = `ps-card-status ps-status-${p.status.toLowerCase().replace(/\s+/g, '-')}`;
@@ -80,7 +53,7 @@ function PropertyCard({ p, savedIds, onAnalyze, onMortgage, onCashFlow, onAI, on
   return (
     <div className="ps-card">
       <div className="ps-card-img">
-        <PropertyImage imgKey={p.img} price={p.price} />
+        <PropertyImage imgKey={p.img} image={p.image} price={p.price} />
         <div className={statusCls}>{STATUS_LABELS[p.status] || p.status}</div>
         {p.daysListed > 0 && <div className="ps-card-days">{p.daysListed}d listed</div>}
         <button
@@ -97,7 +70,7 @@ function PropertyCard({ p, savedIds, onAnalyze, onMortgage, onCashFlow, onAI, on
           <div className="ps-card-info">
             <div className="ps-card-price">${p.price.toLocaleString()}</div>
             <div className="ps-card-addr">{p.address}</div>
-            <div className="ps-card-city">{p.city}</div>
+            <div className="ps-card-city">{p.neighborhood} · {p.market}</div>
           </div>
           <div className="ps-score-badge" style={{ color: scoreColor, borderColor: scoreColor }}>
             <span className="ps-score-num">{p.score}</span>
@@ -106,8 +79,10 @@ function PropertyCard({ p, savedIds, onAnalyze, onMortgage, onCashFlow, onAI, on
         </div>
 
         <div className="ps-card-meta">
-          {isMulti ? (
-            <span className="ps-type ps-type--multi">{p.beds} units</span>
+          {isLand ? (
+            <span>{p.sqft.toLocaleString()} sqft lot</span>
+          ) : isIncomeProperty ? (
+            <span className="ps-type ps-type--multi">{p.units} unit{p.units === 1 ? '' : 's'}</span>
           ) : (
             <>
               <span>{p.beds} bd</span>
@@ -117,7 +92,7 @@ function PropertyCard({ p, savedIds, onAnalyze, onMortgage, onCashFlow, onAI, on
               <span>{p.sqft.toLocaleString()} sqft</span>
             </>
           )}
-          <span className={`ps-type${isMulti ? ' ps-type--multi' : ''}`}>{p.type}</span>
+          <span className={`ps-type${isIncomeProperty ? ' ps-type--multi' : ''}`}>{p.type}</span>
         </div>
 
         <div className="ps-card-metrics">
@@ -137,7 +112,7 @@ function PropertyCard({ p, savedIds, onAnalyze, onMortgage, onCashFlow, onAI, on
           </div>
           <div className="ps-metric">
             <span>Est. Rent</span>
-            <strong className="neutral">${p.rent.toLocaleString()}/mo</strong>
+            <strong className="neutral">{p.rent > 0 ? `$${p.rent.toLocaleString()}/mo` : 'N/A'}</strong>
           </div>
         </div>
 
@@ -162,27 +137,32 @@ function PropertyCard({ p, savedIds, onAnalyze, onMortgage, onCashFlow, onAI, on
 export default function PropertySearch() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [query,       setQuery]       = useState(() => searchParams.get('market') || '');
-  const [mode,        setMode]        = useState('all');
-  const [filterType,  setFilterType]  = useState('all');
-  const [filterBeds,  setFilterBeds]  = useState('any');
+  const initialMarket = searchParams.get('market') || 'all';
+  const [query, setQuery] = useState(() => initialMarket === 'all' ? '' : initialMarket);
+  const [mode, setMode] = useState('all');
+  const [filterType, setFilterType] = useState('all');
+  const [filterMarket, setFilterMarket] = useState(initialMarket);
+  const [filterBeds, setFilterBeds] = useState('any');
   const [filterPrice, setFilterPrice] = useState('any');
-  const [sortBy,      setSortBy]      = useState('score');
-  const [viewMode,    setViewMode]    = useState('grid');
-  const [notice,      setNotice]      = useState('');
-  const [savedIds,    setSavedIds]    = useState(() => new Set(getFavorites().map(f => f.id)));
+  const [minCapRate, setMinCapRate] = useState('any');
+  const [minCashFlow, setMinCashFlow] = useState('any');
+  const [minScore, setMinScore] = useState('any');
+  const [sortBy, setSortBy] = useState('score');
+  const [viewMode, setViewMode] = useState('grid');
+  const [notice, setNotice] = useState('');
+  const [savedIds, setSavedIds] = useState(() => new Set(getFavorites().map(f => f.id)));
 
   const flash = msg => { setNotice(msg); setTimeout(() => setNotice(''), 2400); };
 
-  const handleAnalyze  = p => {
+  const handleAnalyze = p => {
     selectProperty(p);
     saveWorkflowAnalysis(p);
     navigate('/deal-analyzer');
   };
   const handleMortgage = p => { selectProperty(p); navigate('/mortgage-calc'); };
   const handleCashFlow = p => { selectProperty(p); navigate('/cash-flow'); };
-  const handleAI       = p => { selectProperty(p); navigate('/advisor'); };
-  const handleSave     = p => {
+  const handleAI = p => { selectProperty(p); navigate('/advisor'); };
+  const handleSave = p => {
     if (savedIds.has(p.id)) {
       removeFavorite(p.id);
       setSavedIds(prev => { const s = new Set(prev); s.delete(p.id); return s; });
@@ -195,33 +175,55 @@ export default function PropertySearch() {
       flash(`Saved to portfolio: ${p.address}`);
     }
   };
-  const handleCompare  = p => {
+  const handleCompare = p => {
     selectProperty(p);
     addCompareProperty(p);
     flash('Added to comparison.');
   };
 
+  const clearFilters = () => {
+    setQuery('');
+    setMode('all');
+    setFilterType('all');
+    setFilterMarket('all');
+    setFilterBeds('any');
+    setFilterPrice('any');
+    setMinCapRate('any');
+    setMinCashFlow('any');
+    setMinScore('any');
+  };
+
   const filtered = PROPERTIES
     .filter(p => {
       const q = query.toLowerCase();
-      if (q && !p.address.toLowerCase().includes(q) && !p.city.toLowerCase().includes(q)) return false;
+      if (
+        q &&
+        !p.address.toLowerCase().includes(q) &&
+        !p.city.toLowerCase().includes(q) &&
+        !p.market.toLowerCase().includes(q) &&
+        !p.neighborhood.toLowerCase().includes(q)
+      ) return false;
       if (mode !== 'all' && p.mode !== mode) return false;
       if (filterType !== 'all' && p.type !== filterType) return false;
-      if (filterBeds !== 'any' && p.type !== 'Multifamily' && p.beds < parseInt(filterBeds)) return false;
+      if (filterMarket !== 'all' && p.market !== filterMarket) return false;
+      if (filterBeds !== 'any' && p.units <= 1 && p.type !== 'Land' && p.beds < Number(filterBeds)) return false;
       if (filterPrice !== 'any') {
         const [min, max] = filterPrice.split('-').map(Number);
         if (p.price < min) return false;
         if (max && p.price > max) return false;
       }
+      if (minCapRate !== 'any' && p.capRate < Number(minCapRate)) return false;
+      if (minCashFlow !== 'any' && p.cashFlow < Number(minCashFlow)) return false;
+      if (minScore !== 'any' && p.score < Number(minScore)) return false;
       return true;
     })
     .sort((a, b) => {
-      if (sortBy === 'score')      return b.score - a.score;
-      if (sortBy === 'price-asc')  return a.price - b.price;
+      if (sortBy === 'score') return b.score - a.score;
+      if (sortBy === 'price-asc') return a.price - b.price;
       if (sortBy === 'price-desc') return b.price - a.price;
-      if (sortBy === 'roi')        return b.roi - a.roi;
-      if (sortBy === 'cashflow')   return b.cashFlow - a.cashFlow;
-      if (sortBy === 'caprate')    return b.capRate - a.capRate;
+      if (sortBy === 'roi') return b.roi - a.roi;
+      if (sortBy === 'cashflow') return b.cashFlow - a.cashFlow;
+      if (sortBy === 'caprate') return b.capRate - a.capRate;
       return 0;
     });
 
@@ -230,11 +232,10 @@ export default function PropertySearch() {
       <div className="page-header">
         <h1 className="page-title">Property Search</h1>
         <p className="page-subtitle">
-          AI-scored listings with investment metrics — cap rate, cash flow, and ROI on every property.
+          AI-scored listings with investment metrics, cap rate, cash flow, and ROI across active demo markets.
         </p>
       </div>
 
-      {/* Mode tabs */}
       <div className="ps-mode-tabs">
         {[['all', 'All Listings'], ['buy', 'Buy'], ['invest', 'Invest']].map(([v, l]) => (
           <button
@@ -245,10 +246,9 @@ export default function PropertySearch() {
             {l}
           </button>
         ))}
-        <span className="ps-mode-count">{filtered.length} properties</span>
+        <span className="ps-mode-count">{filtered.length} of {PROPERTIES.length} properties</span>
       </div>
 
-      {/* Search bar + filters */}
       <div className="ps-search-bar card">
         <div className="ps-search-input-wrap">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="ps-search-ic">
@@ -257,20 +257,22 @@ export default function PropertySearch() {
           </svg>
           <input
             className="ps-search-input form-input"
-            placeholder="Search by address, city, or ZIP..."
+            placeholder="Search by address, city, market, neighborhood, or ZIP..."
             value={query}
             onChange={e => setQuery(e.target.value)}
           />
           {query && (
-            <button className="ps-search-clear" onClick={() => setQuery('')}>×</button>
+            <button className="ps-search-clear" onClick={() => setQuery('')}>x</button>
           )}
         </div>
         <div className="ps-filters">
+          <select className="form-select" value={filterMarket} onChange={e => setFilterMarket(e.target.value)}>
+            <option value="all">All Markets</option>
+            {MARKETS_LIST.map(market => <option key={market} value={market}>{market}</option>)}
+          </select>
           <select className="form-select" value={filterType} onChange={e => setFilterType(e.target.value)}>
             <option value="all">All Types</option>
-            <option value="Single Family">Single Family</option>
-            <option value="Condo">Condo</option>
-            <option value="Multifamily">Multifamily</option>
+            {PROPERTY_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
           </select>
           <select className="form-select" value={filterBeds} onChange={e => setFilterBeds(e.target.value)}>
             <option value="any">Any Beds</option>
@@ -281,17 +283,37 @@ export default function PropertySearch() {
           <select className="form-select" value={filterPrice} onChange={e => setFilterPrice(e.target.value)}>
             <option value="any">Any Price</option>
             <option value="0-300000">Under $300K</option>
-            <option value="300000-600000">$300K – $600K</option>
-            <option value="600000-1000000">$600K – $1M</option>
+            <option value="300000-600000">$300K - $600K</option>
+            <option value="600000-1000000">$600K - $1M</option>
             <option value="1000000-99999999">$1M+</option>
           </select>
+          <select className="form-select" value={minCapRate} onChange={e => setMinCapRate(e.target.value)}>
+            <option value="any">Any Cap Rate</option>
+            <option value="4">4%+ Cap</option>
+            <option value="5">5%+ Cap</option>
+            <option value="6">6%+ Cap</option>
+            <option value="7">7%+ Cap</option>
+          </select>
+          <select className="form-select" value={minCashFlow} onChange={e => setMinCashFlow(e.target.value)}>
+            <option value="any">Any Cash Flow</option>
+            <option value="0">$0+/mo</option>
+            <option value="500">$500+/mo</option>
+            <option value="1000">$1K+/mo</option>
+            <option value="1500">$1.5K+/mo</option>
+          </select>
+          <select className="form-select" value={minScore} onChange={e => setMinScore(e.target.value)}>
+            <option value="any">Any Score</option>
+            <option value="70">70+</option>
+            <option value="80">80+</option>
+            <option value="90">90+</option>
+          </select>
           <select className="form-select" value={sortBy} onChange={e => setSortBy(e.target.value)}>
-            <option value="score">Best AI Score</option>
-            <option value="cashflow">Best Cash Flow</option>
-            <option value="roi">Highest ROI</option>
+            <option value="score">Score</option>
             <option value="caprate">Cap Rate</option>
-            <option value="price-asc">Price: Low → High</option>
-            <option value="price-desc">Price: High → Low</option>
+            <option value="cashflow">Cash Flow</option>
+            <option value="roi">ROI</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
           </select>
         </div>
         <div className="ps-view-toggle">
@@ -311,13 +333,12 @@ export default function PropertySearch() {
         </div>
       </div>
 
-      {/* Results bar */}
       <div className="ps-results-meta">
         <span className="ps-results-count">
           {filtered.length} {filtered.length === 1 ? 'property' : 'properties'} found
         </span>
         <div className="ps-results-actions">
-          {notice && <span className="ps-notice">✓ {notice}</span>}
+          {notice && <span className="ps-notice">Saved: {notice}</span>}
           <button className="btn btn-outline btn-sm" onClick={() => navigate('/comparison')}>
             Compare
           </button>
@@ -327,7 +348,6 @@ export default function PropertySearch() {
         </div>
       </div>
 
-      {/* Property grid */}
       <div className={`ps-grid${viewMode === 'list' ? ' ps-grid--list' : ''}`}>
         {filtered.map(p => (
           <PropertyCard
@@ -348,11 +368,8 @@ export default function PropertySearch() {
               <circle cx="21" cy="21" r="13" stroke="#cbd5e1" strokeWidth="2"/>
               <path d="M30 30L42 42" stroke="#cbd5e1" strokeWidth="2.5" strokeLinecap="round"/>
             </svg>
-            <p>No properties match your filters.</p>
-            <button className="btn btn-ghost btn-sm" onClick={() => {
-              setQuery(''); setMode('all'); setFilterType('all');
-              setFilterBeds('any'); setFilterPrice('any');
-            }}>
+            <p>No properties match your filters. Try a broader market, lower score, or lower cash-flow target.</p>
+            <button className="btn btn-ghost btn-sm" onClick={clearFilters}>
               Clear All Filters
             </button>
           </div>
