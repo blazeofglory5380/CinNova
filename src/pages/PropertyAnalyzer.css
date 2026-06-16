@@ -368,16 +368,164 @@
   flex-shrink: 0;
 }
 
+/* ── Investment verdict ──────────────────────────────────── */
+.pa-verdict {
+  border-radius: var(--r-lg);
+  padding: 20px 24px;
+}
+
+.pa-verdict-header {
+  margin-bottom: 14px;
+}
+
+.pa-verdict-label {
+  display: inline-block;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.4px;
+  margin-bottom: 6px;
+}
+
+.pa-verdict-summary {
+  font-size: 14px;
+  color: var(--gray-700);
+  line-height: 1.55;
+}
+
+.pa-verdict-reasons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pa-verdict-reason {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--gray-700);
+  font-weight: 600;
+}
+
+.pa-verdict-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Risk breakdown ──────────────────────────────────────── */
+.pa-risk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--gray-200);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.pa-risk-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 18px;
+  background: var(--white);
+}
+
+.pa-risk-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.pa-risk-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.pa-risk-factor {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 2px;
+}
+
+.pa-risk-note {
+  font-size: 12px;
+  color: var(--gray-500);
+  line-height: 1.4;
+}
+
+/* ── Shared stat grid (Comps / Renovation / Rental) ─────── */
+.pa-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--gray-200);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.pa-stat-cell {
+  background: var(--white);
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pa-stat-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pa-stat-val {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--gray-900);
+  letter-spacing: -0.2px;
+}
+
+.pa-stat-val.pos { color: var(--success); }
+.pa-stat-val.neg { color: var(--danger); }
+
+/* ── Action bar ──────────────────────────────────────────── */
+.pa-action-btns {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pa-action-btns .btn {
+  flex: 1;
+  min-width: 160px;
+  justify-content: center;
+}
+
 /* ── Responsive ──────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .metrics-grid  { grid-template-columns: 1fr 1fr; }
-  .features-grid { grid-template-columns: 1fr; }
-  .scores-row    { gap: 20px; }
-  .scores-divider{ display: none; }
-  .pinfo-card    { flex-direction: column; align-items: flex-start; }
-  .pinfo-right   { text-align: left; }
-  .pinfo-price   { font-size: 22px; }
+  .metrics-grid    { grid-template-columns: 1fr 1fr; }
+  .scores-row      { gap: 20px; }
+  .scores-divider  { display: none; }
+  .pinfo-card      { flex-direction: column; align-items: flex-start; }
+  .pinfo-right     { text-align: left; }
+  .pinfo-price     { font-size: 22px; }
+  .pa-stat-grid    { grid-template-columns: 1fr; }
+  .pa-action-btns .btn { min-width: 140px; }
 }
 @media (max-width: 480px) {
-  .metrics-grid { grid-template-columns: 1fr; }
+  .metrics-grid    { grid-template-columns: 1fr; }
+  .pa-action-btns  { flex-direction: column; }
+  .pa-action-btns .btn { width: 100%; }
 }
