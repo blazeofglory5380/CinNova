@@ -23,6 +23,7 @@ import PortfolioDashboard from './pages/PortfolioDashboard';
 import PhotoGallery from './pages/PhotoGallery';
 import DevStudio from './pages/DevStudio';
 import ArchitectureIntelligence from './pages/ArchitectureIntelligence';
+import MainDashboard from './pages/MainDashboard';
 import './styles/global.css';
 import './App.css';
 
@@ -71,6 +72,7 @@ export default function App() {
               <Route path="/architecture"    element={<ArchitectureIntelligence />} />
               <Route path="/bim"             element={<ArchitectureIntelligence />} />
               <Route path="/architecture-intelligence" element={<ArchitectureIntelligence />} />
+              <Route path="/main-dashboard"           element={<MainDashboard />} />
             </Routes>
           </main>
         </div>
