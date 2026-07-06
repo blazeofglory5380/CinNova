@@ -676,7 +676,7 @@ export default function MainDashboard() {
             sub={analyses.length ? `${analyses.length} saved analys${analyses.length === 1 ? 'is' : 'es'}` : 'No analyses yet'}
             accent="blue"
             onClick={() => go('/score-engine')}
-            trend={analyses.length ? 'Open analyzer →' : null}
+            trend={analyses.length ? 'Open score engine →' : null}
             trendUp
           />
           <KpiCard
@@ -704,7 +704,7 @@ export default function MainDashboard() {
             sub={kpi.avgScore != null ? recLabel(kpi.avgScore) : 'Analyze properties to score'}
             accent={kpi.avgScore != null ? (kpi.avgScore >= 70 ? 'green' : kpi.avgScore >= 55 ? 'blue' : 'amber') : 'gray'}
             onClick={() => go('/score-engine')}
-            trend={kpi.avgScore != null ? 'Open analyzer →' : null}
+            trend={kpi.avgScore != null ? 'Open score engine →' : null}
             trendUp={kpi.avgScore != null && kpi.avgScore >= 55}
           />
         </div>
