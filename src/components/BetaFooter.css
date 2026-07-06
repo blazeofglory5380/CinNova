@@ -66,6 +66,15 @@
   color: #1e293b;
 }
 
+.beta-footer-readiness:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.beta-footer-readiness:disabled:hover {
+  border-color: #e2e8f0;
+  color: #475569;
+}
+
 .beta-footer-feedback {
   display: inline-flex;
   align-items: center;

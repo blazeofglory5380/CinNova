@@ -1615,3 +1615,41 @@
 @media (max-width: 600px) {
   .wd-beta-mode-banner { flex-direction: column; align-items: flex-start; gap: 8px; }
 }
+
+/* ══ Incremental-landing "Coming soon" affordances ═══════════════════════════ */
+/* Small chip marking actions whose destination page isn't on main yet. */
+.wd-soon {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  margin-left: 6px;
+  border-radius: 100px;
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #b45309;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* Disabled (coming-soon) custom buttons: not-actionable, no hover lift. */
+.wd-qa-btn:disabled,
+.wd-cl-item:disabled,
+.wd-beta-cl-item:disabled,
+.wd-advisor-action:disabled,
+.wd-mkt-btn:disabled,
+.wd-beta-mode-link:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+.wd-qa-btn:disabled:hover,
+.wd-cl-item:disabled:hover,
+.wd-beta-cl-item:disabled:hover,
+.wd-advisor-action:disabled:hover,
+.wd-mkt-btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}

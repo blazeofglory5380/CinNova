@@ -2,7 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import './BetaFooter.css';
 
-export default function BetaFooter({ page = '' }) {
+export default function BetaFooter({ page = '', readinessSoon = false }) {
   const navigate = useNavigate();
   const subject  = encodeURIComponent('CinNova Real Estate AI Beta Feedback');
   const body     = encodeURIComponent(`Page: ${page || 'CinNova'}\n\nFeedback:\n`);
@@ -20,9 +20,10 @@ export default function BetaFooter({ page = '' }) {
         <button
           type="button"
           className="beta-footer-readiness"
-          onClick={() => navigate('/beta-readiness')}
+          onClick={() => { if (!readinessSoon) navigate('/beta-readiness'); }}
+          disabled={readinessSoon}
         >
-          Beta Readiness →
+          Beta Readiness {readinessSoon ? '· Soon' : '→'}
         </button>
         <a href={mailto} className="beta-footer-feedback">
           <svg width="13" height="13" viewBox="0 0 18 18" fill="none">

@@ -184,7 +184,7 @@ function KpiCard({ icon, label, value, sub, accent, onClick, trend, trendUp }) {
   );
 }
 
-function MarketCard({ m, onExplore }) {
+function MarketCard({ m, onExplore, disabled }) {
   return (
     <div className="wd-mkt-card" style={{ borderColor: m.border, background: m.bg }}>
       <div className="wd-mkt-top">
@@ -210,8 +210,8 @@ function MarketCard({ m, onExplore }) {
           <strong style={{ color: '#2563eb' }}>{m.priceYoY}</strong>
         </div>
       </div>
-      <button className="wd-mkt-btn" style={{ color: m.color }} onClick={() => onExplore(m.city)}>
-        Explore market →
+      <button className="wd-mkt-btn" style={{ color: m.color }} onClick={() => onExplore(m.city)} disabled={disabled}>
+        {disabled ? 'Explore — Soon' : 'Explore market →'}
       </button>
     </div>
   );
@@ -287,10 +287,39 @@ const KpiScoreIcon = () => (
   </svg>
 );
 
+// ── Incremental-landing route guard ──────────────────────────────────────────
+// Only these routes exist on `main` today. Missing analysis/scoring routes fall
+// back to the Property Analyzer; everything else is shown as "Coming soon" so no
+// button ever lands on a blank (unrouted) page.
+const LIVE_ROUTES       = new Set(['/analyzer']);
+const ANALYZER_FALLBACK = new Set(['/score-engine']); // deal scoring → Property Analyzer
+
+function routeState(path) {
+  if (LIVE_ROUTES.has(path))       return 'live';
+  if (ANALYZER_FALLBACK.has(path)) return 'analyzer';
+  return 'soon';
+}
+function isComingSoon(path) {
+  return routeState(path) === 'soon';
+}
+
+// Small "Soon" chip for actions whose destination page isn't on main yet.
+function Soon() {
+  return <span className="wd-soon">Soon</span>;
+}
+
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function MainDashboard() {
   const navigate = useNavigate();
+
+  // Safe navigation: never routes to a page that doesn't exist on main yet.
+  const go = (path) => {
+    const state = routeState(path);
+    if (state === 'live')     navigate(path);
+    else if (state === 'analyzer') navigate('/analyzer');
+    // 'soon' → intentionally no navigation
+  };
 
   const [portfolio,  setPortfolio]  = useState([]);
   const [analyses,   setAnalyses]   = useState([]);
@@ -451,7 +480,7 @@ export default function MainDashboard() {
   }
 
   function exploreMarket() {
-    navigate('/market-heat-map');
+    go('/market-heat-map');
   }
 
   const hasAnyData = portfolio.length > 0 || analyses.length > 0;
@@ -552,7 +581,7 @@ export default function MainDashboard() {
                   <path d="M3 8h9M8 4l4 4-4 4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
-              <button className="wd-hero-cta wd-hero-cta--ghost" onClick={() => navigate('/score-engine')}>
+              <button className="wd-hero-cta wd-hero-cta--ghost" onClick={() => go('/score-engine')}>
                 <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden>
                   <path d="M3 12.5C3 9.46 5.69 7 9 7s6 2.46 6 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                   <path d="M9 7V4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
@@ -630,9 +659,10 @@ export default function MainDashboard() {
         </span>
         <button
           className="wd-beta-mode-link"
-          onClick={() => navigate('/beta-readiness')}
+          onClick={() => go('/beta-readiness')}
+          disabled={isComingSoon('/beta-readiness')}
         >
-          What's in beta →
+          What's in beta <Soon />
         </button>
       </div>
 
@@ -645,8 +675,8 @@ export default function MainDashboard() {
             value={analyses.length || '0'}
             sub={analyses.length ? `${analyses.length} saved analys${analyses.length === 1 ? 'is' : 'es'}` : 'No analyses yet'}
             accent="blue"
-            onClick={() => navigate('/score-engine')}
-            trend={analyses.length ? 'View all analyses' : null}
+            onClick={() => go('/score-engine')}
+            trend={analyses.length ? 'Open analyzer →' : null}
             trendUp
           />
           <KpiCard
@@ -655,8 +685,7 @@ export default function MainDashboard() {
             value={portfolio.length || '0'}
             sub={portfolio.length ? `${portfolio.length} portfolio propert${portfolio.length === 1 ? 'y' : 'ies'}` : 'No deals saved yet'}
             accent="emerald"
-            onClick={() => navigate('/portfolio-tracker')}
-            trend={portfolio.length ? 'Open portfolio →' : null}
+            trend={portfolio.length ? 'Portfolio tracker — soon' : null}
             trendUp
           />
           <KpiCard
@@ -665,7 +694,6 @@ export default function MainDashboard() {
             value={kpi.portfolioValue ? fmtPrice(kpi.portfolioValue) : '—'}
             sub={portfolio.length ? `Across ${portfolio.length} properties` : 'Save properties to track'}
             accent="gold"
-            onClick={portfolio.length ? () => navigate('/portfolio-tracker') : undefined}
             trend={portfolio.length ? `$${Math.round(kpi.portfolioValue * 0.03).toLocaleString()} est. annual appreciation` : null}
             trendUp
           />
@@ -675,8 +703,8 @@ export default function MainDashboard() {
             value={kpi.avgScore != null ? `${kpi.avgScore}/100` : '—'}
             sub={kpi.avgScore != null ? recLabel(kpi.avgScore) : 'Analyze properties to score'}
             accent={kpi.avgScore != null ? (kpi.avgScore >= 70 ? 'green' : kpi.avgScore >= 55 ? 'blue' : 'amber') : 'gray'}
-            onClick={() => navigate('/score-engine')}
-            trend={kpi.avgScore != null ? 'Open Score Engine →' : null}
+            onClick={() => go('/score-engine')}
+            trend={kpi.avgScore != null ? 'Open analyzer →' : null}
             trendUp={kpi.avgScore != null && kpi.avgScore >= 55}
           />
         </div>
@@ -704,11 +732,11 @@ export default function MainDashboard() {
             <p>Search any address, run AI deal scoring, and build your investment portfolio — all in one place.</p>
           </div>
           <div className="wd-onboard-actions">
-            <button className="btn btn-primary" onClick={() => navigate('/score-engine')}>
-              Open Score Engine
+            <button className="btn btn-primary" onClick={() => go('/score-engine')}>
+              Analyze a Property
             </button>
-            <button className="btn btn-outline" onClick={() => navigate('/market-heat-map')}>
-              Explore Markets
+            <button className="btn btn-outline" onClick={() => go('/market-heat-map')} disabled={isComingSoon('/market-heat-map')}>
+              Explore Markets <Soon />
             </button>
           </div>
         </div>
@@ -739,7 +767,8 @@ export default function MainDashboard() {
               key={i}
               type="button"
               className={`wd-cl-item${item.done ? ' wd-cl-item--done' : ''}`}
-              onClick={() => navigate(item.path)}
+              onClick={() => go(item.path)}
+              disabled={isComingSoon(item.path)}
             >
               <span className="wd-cl-check" aria-hidden>
                 {item.done
@@ -748,7 +777,7 @@ export default function MainDashboard() {
               </span>
               <span className="wd-cl-icon">{item.icon}</span>
               <span className="wd-cl-label">{item.label}</span>
-              {!item.done && <span className="wd-cl-go">Go →</span>}
+              {!item.done && (isComingSoon(item.path) ? <Soon /> : <span className="wd-cl-go">Go →</span>)}
             </button>
           ))}
         </div>
@@ -763,7 +792,7 @@ export default function MainDashboard() {
             <h2 className="card-title">Recent Properties & Deals</h2>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <span className="badge badge-blue">{tableRows.length} total</span>
-              <button className="btn btn-ghost btn-sm" onClick={() => navigate('/portfolio-tracker')}>View all →</button>
+              <button className="btn btn-ghost btn-sm" onClick={() => go('/portfolio-tracker')} disabled={isComingSoon('/portfolio-tracker')}>View all <Soon /></button>
             </div>
           </div>
 
@@ -771,8 +800,8 @@ export default function MainDashboard() {
             <div className="wd-table-empty">
               <div className="wd-empty-icon">📋</div>
               <p>No properties yet. Analyze or save a property to see it here.</p>
-              <button className="btn btn-primary btn-sm" onClick={() => navigate('/score-engine')}>
-                Open Score Engine →
+              <button className="btn btn-primary btn-sm" onClick={() => go('/score-engine')}>
+                Analyze a Property →
               </button>
             </div>
           ) : (
@@ -858,16 +887,21 @@ export default function MainDashboard() {
           <div className="wd-advisor-actions-label">Suggested next actions</div>
           <div className="wd-advisor-actions">
             {advisor.actions.map((a, i) => (
-              <button key={i} className="wd-advisor-action" onClick={() => navigate(a.path)}>
+              <button
+                key={i}
+                className="wd-advisor-action"
+                onClick={() => go(a.path)}
+                disabled={isComingSoon(a.path)}
+              >
                 <span className="wd-action-num">{i + 1}</span>
                 <span className="wd-action-text">{a.text}</span>
-                <span className="wd-action-arrow">→</span>
+                {isComingSoon(a.path) ? <Soon /> : <span className="wd-action-arrow">→</span>}
               </button>
             ))}
           </div>
 
-          <button className="btn btn-primary" style={{ width: '100%', marginTop: 16 }} onClick={() => navigate('/ai-advisor-chat')}>
-            Open AI Advisor Chat
+          <button className="btn btn-primary" style={{ width: '100%', marginTop: 16 }} onClick={() => go('/ai-advisor-chat')} disabled={isComingSoon('/ai-advisor-chat')}>
+            AI Advisor <Soon />
           </button>
         </div>
       </div>
@@ -876,13 +910,13 @@ export default function MainDashboard() {
       <div className="section">
         <div className="section-header">
           <h2 className="section-title">Market Opportunities</h2>
-          <button className="btn btn-ghost btn-sm" onClick={() => navigate('/market-heat-map')}>
-            Full market analysis →
+          <button className="btn btn-ghost btn-sm" onClick={() => go('/market-heat-map')} disabled={isComingSoon('/market-heat-map')}>
+            Full market analysis <Soon />
           </button>
         </div>
         <div className="wd-markets-grid">
           {MARKETS.map(m => (
-            <MarketCard key={m.city} m={m} onExplore={exploreMarket} />
+            <MarketCard key={m.city} m={m} onExplore={exploreMarket} disabled={isComingSoon('/market-heat-map')} />
           ))}
         </div>
       </div>
@@ -909,13 +943,13 @@ export default function MainDashboard() {
             { icon: '⚖️', label: 'Compare properties',  note: 'Compare 2–3 deals side by side with AI winner picks',  path: '/property-comparison' },
             { icon: '🤖', label: 'Ask AI Advisor',      note: 'Try a suggested prompt about your portfolio',           path: '/ai-advisor-chat' },
           ].map((item, i) => (
-            <button key={i} className="wd-beta-cl-item" onClick={() => navigate(item.path)}>
+            <button key={i} className="wd-beta-cl-item" onClick={() => go(item.path)} disabled={isComingSoon(item.path)}>
               <span className="wd-beta-cl-icon">{item.icon}</span>
               <div className="wd-beta-cl-body">
                 <span className="wd-beta-cl-label">{item.label}</span>
                 <span className="wd-beta-cl-note">{item.note}</span>
               </div>
-              <span className="wd-beta-cl-arrow">→</span>
+              {isComingSoon(item.path) ? <Soon /> : <span className="wd-beta-cl-arrow">→</span>}
             </button>
           ))}
         </div>}
@@ -927,35 +961,35 @@ export default function MainDashboard() {
           <h2 className="section-title">Quick Actions</h2>
         </div>
         <div className="wd-quick-actions">
-          <button className="wd-qa-btn wd-qa-btn--primary" onClick={() => navigate('/score-engine')}>
+          <button className="wd-qa-btn wd-qa-btn--primary" onClick={() => go('/score-engine')}>
             <span className="wd-qa-icon"><AnalyzeIcon /></span>
             <div>
               <div className="wd-qa-label">Analyze Property</div>
               <div className="wd-qa-sub">AI deal scoring in seconds</div>
             </div>
           </button>
-          <button className="wd-qa-btn wd-qa-btn--teal" onClick={() => navigate('/ai-advisor-chat')}>
+          <button className="wd-qa-btn wd-qa-btn--teal" onClick={() => go('/ai-advisor-chat')} disabled={isComingSoon('/ai-advisor-chat')}>
             <span className="wd-qa-icon"><HubIcon /></span>
             <div>
-              <div className="wd-qa-label">AI Advisor</div>
+              <div className="wd-qa-label">AI Advisor <Soon /></div>
               <div className="wd-qa-sub">Ask about your portfolio</div>
             </div>
           </button>
-          <button className="wd-qa-btn wd-qa-btn--gold" onClick={() => navigate('/property-report-generator')}>
+          <button className="wd-qa-btn wd-qa-btn--gold" onClick={() => go('/property-report-generator')} disabled={isComingSoon('/property-report-generator')}>
             <span className="wd-qa-icon"><ReportIcon /></span>
             <div>
-              <div className="wd-qa-label">Generate Report</div>
+              <div className="wd-qa-label">Generate Report <Soon /></div>
               <div className="wd-qa-sub">Investor-ready report in seconds</div>
             </div>
           </button>
-          <button className="wd-qa-btn wd-qa-btn--purple" onClick={() => navigate('/market-heat-map')}>
+          <button className="wd-qa-btn wd-qa-btn--purple" onClick={() => go('/market-heat-map')} disabled={isComingSoon('/market-heat-map')}>
             <span className="wd-qa-icon"><MktIcon /></span>
             <div>
-              <div className="wd-qa-label">Market Heat Map</div>
+              <div className="wd-qa-label">Market Heat Map <Soon /></div>
               <div className="wd-qa-sub">Nashville, Dallas, Raleigh +</div>
             </div>
           </button>
-          <button className="wd-qa-btn wd-qa-btn--indigo" onClick={() => navigate('/score-engine')}>
+          <button className="wd-qa-btn wd-qa-btn--indigo" onClick={() => go('/score-engine')}>
             <span className="wd-qa-icon"><ScoreEngineIcon /></span>
             <div>
               <div className="wd-qa-label">Score Engine</div>
@@ -965,7 +999,7 @@ export default function MainDashboard() {
         </div>
       </div>
 
-      <BetaFooter page="Main Dashboard" />
+      <BetaFooter page="Main Dashboard" readinessSoon />
 
     </div>
   );
