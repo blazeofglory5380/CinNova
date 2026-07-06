@@ -291,8 +291,8 @@ const KpiScoreIcon = () => (
 // Only these routes exist on `main` today. Missing analysis/scoring routes fall
 // back to the Property Analyzer; everything else is shown as "Coming soon" so no
 // button ever lands on a blank (unrouted) page.
-const LIVE_ROUTES       = new Set(['/analyzer']);
-const ANALYZER_FALLBACK = new Set(['/score-engine']); // deal scoring → Property Analyzer
+const LIVE_ROUTES       = new Set(['/analyzer', '/score-engine']); // Score Engine shipped (PR #2)
+const ANALYZER_FALLBACK = new Set([]); // (no fallbacks needed)
 
 function routeState(path) {
   if (LIVE_ROUTES.has(path))       return 'live';
@@ -676,7 +676,7 @@ export default function MainDashboard() {
             sub={analyses.length ? `${analyses.length} saved analys${analyses.length === 1 ? 'is' : 'es'}` : 'No analyses yet'}
             accent="blue"
             onClick={() => go('/score-engine')}
-            trend={analyses.length ? 'Open analyzer →' : null}
+            trend={analyses.length ? 'Open score engine →' : null}
             trendUp
           />
           <KpiCard
@@ -704,7 +704,7 @@ export default function MainDashboard() {
             sub={kpi.avgScore != null ? recLabel(kpi.avgScore) : 'Analyze properties to score'}
             accent={kpi.avgScore != null ? (kpi.avgScore >= 70 ? 'green' : kpi.avgScore >= 55 ? 'blue' : 'amber') : 'gray'}
             onClick={() => go('/score-engine')}
-            trend={kpi.avgScore != null ? 'Open analyzer →' : null}
+            trend={kpi.avgScore != null ? 'Open score engine →' : null}
             trendUp={kpi.avgScore != null && kpi.avgScore >= 55}
           />
         </div>
