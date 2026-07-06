@@ -24,6 +24,7 @@ import PhotoGallery from './pages/PhotoGallery';
 import DevStudio from './pages/DevStudio';
 import ArchitectureIntelligence from './pages/ArchitectureIntelligence';
 import MainDashboard from './pages/MainDashboard';
+import ScoreEngine from './pages/ScoreEngine';
 import './styles/global.css';
 import './App.css';
 
@@ -73,6 +74,7 @@ export default function App() {
               <Route path="/bim"             element={<ArchitectureIntelligence />} />
               <Route path="/architecture-intelligence" element={<ArchitectureIntelligence />} />
               <Route path="/main-dashboard"           element={<MainDashboard />} />
+              <Route path="/score-engine"             element={<ScoreEngine />} />
             </Routes>
           </main>
         </div>
