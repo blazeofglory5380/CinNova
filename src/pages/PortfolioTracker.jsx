@@ -333,7 +333,7 @@ export default function PortfolioTracker() {
             <button className="btn btn-outline" onClick={() => navigate('/market-heat-map')}>Explore Markets</button>
           </div>
         </div>
-        <BetaFooter page="Portfolio Tracker" readinessSoon />
+        <BetaFooter page="Portfolio Tracker" />
       </div>
     );
   }
@@ -575,7 +575,7 @@ export default function PortfolioTracker() {
         </button>
       </div>
 
-      <BetaFooter page="Portfolio Tracker" readinessSoon />
+      <BetaFooter page="Portfolio Tracker" />
 
     </div>
   );

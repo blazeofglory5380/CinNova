@@ -1,0 +1,269 @@
+/* BetaReadiness — CSS prefix: br- */
+
+/* ── Header ── */
+.br-header-badges {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.br-header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ── Status banner ── */
+.br-status-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%);
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.br-status-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.br-status-dot {
+  width: 10px;
+  height: 10px;
+  background: #22c55e;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+  animation: br-pulse 2s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes br-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2); }
+  50%       { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.1); }
+}
+
+.br-status-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #166534;
+}
+
+.br-status-sub {
+  font-size: 12px;
+  color: #4ade80;
+  color: #15803d;
+  margin-top: 2px;
+}
+
+/* ── Stats row ── */
+.br-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.br-stat-card {
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid;
+  text-align: center;
+}
+
+.br-stat-card--green {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.br-stat-card--gold {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.br-stat-card--blue {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.br-stat-num {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.br-stat-card--green .br-stat-num { color: #059669; }
+.br-stat-card--gold  .br-stat-num { color: #d97706; }
+.br-stat-card--blue  .br-stat-num { color: #2563eb; }
+
+.br-stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── Section ── */
+.br-section {
+  margin-bottom: 20px;
+}
+
+.br-section-note {
+  font-size: 13px;
+  color: #64748b;
+  background: #f8fafc;
+  border-left: 3px solid #e2e8f0;
+  padding: 10px 14px;
+  border-radius: 0 6px 6px 0;
+  margin: 12px 0 16px;
+  line-height: 1.5;
+}
+
+/* ── Items list ── */
+.br-items {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.br-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #f1f5f9;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.br-item:hover {
+  background: #f1f5f9;
+}
+
+.br-item-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.br-icon--green { background: #dcfce7; color: #059669; }
+.br-icon--gold  { background: #fef9c3; color: #92400e; }
+.br-icon--blue  { background: #dbeafe; color: #2563eb; font-size: 12px; }
+
+.br-item-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.br-item-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.3;
+}
+
+.br-item-note {
+  font-size: 11.5px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+/* ── Quick links ── */
+.br-links-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.br-link-btn {
+  padding: 14px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.br-link-btn:hover {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.br-link-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.br-link-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.br-link-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #2563eb;
+  background: #dbeafe;
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.br-link-sub {
+  font-size: 11.5px;
+  color: #64748b;
+  display: block;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .br-links-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .br-items {
+    grid-template-columns: 1fr;
+  }
+  .br-stats-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .br-stats-row {
+    grid-template-columns: 1fr;
+  }
+  .br-links-grid {
+    grid-template-columns: 1fr;
+  }
+  .br-status-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

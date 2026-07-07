@@ -356,7 +356,7 @@ export default function DealPipeline() {
             <button className="btn btn-outline" onClick={() => navigate('/main-dashboard')}>Dashboard</button>
           </div>
         </div>
-        <BetaFooter page="Deal Pipeline" readinessSoon />
+        <BetaFooter page="Deal Pipeline" />
       </div>
     );
   }
@@ -443,7 +443,7 @@ export default function DealPipeline() {
         </button>
       </div>
 
-      <BetaFooter page="Deal Pipeline" readinessSoon />
+      <BetaFooter page="Deal Pipeline" />
 
     </div>
   );
