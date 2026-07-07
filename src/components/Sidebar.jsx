@@ -15,6 +15,7 @@ const CompareIcon    = () => <svg width="16" height="16" viewBox="0 0 18 18" fil
 const MapIcon        = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M3 5.2L7 3.5L11 5.2L15 3.5V12.8L11 14.5L7 12.8L3 14.5V5.2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="M7 3.5V12.8M11 5.2V14.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/><circle cx="9" cy="8.8" r="1.4" fill="currentColor"/></svg>;
 const NeighIcon      = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2C6.8 2 5 3.8 5 6C5 9.5 9 14 9 14C9 14 13 9.5 13 6C13 3.8 11.2 2 9 2Z" stroke="currentColor" strokeWidth="1.5"/><circle cx="9" cy="6" r="1.8" fill="currentColor"/></svg>;
 const ChartIcon      = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><polyline points="2,14 6,9 10,12 16,5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="16" cy="5" r="1.8" fill="currentColor"/></svg>;
+const HeatMapIcon    = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="2.5" width="13" height="13" rx="2" stroke="currentColor" strokeWidth="1.5"/><rect x="5" y="5" width="3" height="3" rx="0.6" fill="currentColor" opacity="0.35"/><rect x="10" y="5" width="3" height="3" rx="0.6" fill="currentColor"/><rect x="5" y="10" width="3" height="3" rx="0.6" fill="currentColor"/><rect x="10" y="10" width="3" height="3" rx="0.6" fill="currentColor" opacity="0.55"/></svg>;
 const CalcIcon       = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="3" y="2.5" width="12" height="13" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M6 6.5H12M6 9H12M6 11.5H9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg>;
 const CashFlowIcon   = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><polyline points="2,13 5.5,8.5 8.5,10.5 12,6 15.5,7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 const PortfolioIcon  = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="7" width="3" height="9" rx="1" stroke="currentColor" strokeWidth="1.4"/><rect x="7.5" y="4" width="3" height="12" rx="1" stroke="currentColor" strokeWidth="1.4"/><rect x="13" y="1.5" width="3" height="14.5" rx="1" stroke="currentColor" strokeWidth="1.4"/></svg>;
@@ -62,9 +63,10 @@ const SECTIONS = [
     id: 'market',
     label: 'Market & Neighborhood',
     primary: [
-      { to: '/map',          label: 'Interactive Map',     icon: MapIcon,   end: false },
-      { to: '/neighborhood', label: 'Neighborhood Intel',  icon: NeighIcon, end: false },
-      { to: '/market',       label: 'Market Intelligence', icon: ChartIcon, end: false },
+      { to: '/market-heat-map', label: 'Market Heat Map',     icon: HeatMapIcon, end: false },
+      { to: '/map',             label: 'Interactive Map',     icon: MapIcon,     end: false },
+      { to: '/neighborhood',    label: 'Neighborhood Intel',  icon: NeighIcon,   end: false },
+      { to: '/market',          label: 'Market Intelligence', icon: ChartIcon,   end: false },
     ],
   },
   {
