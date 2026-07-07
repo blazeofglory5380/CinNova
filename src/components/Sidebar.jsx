@@ -92,8 +92,9 @@ const SECTIONS = [
     id: 'docs',
     label: 'Documents',
     primary: [
-      { to: '/documents',   label: 'Document Center', icon: DocumentIcon, end: false },
-      { to: '/negotiation', label: 'Negotiation',     icon: NegIcon,      end: false },
+      { to: '/documents',       label: 'Document Center', icon: DocumentIcon, end: false },
+      { to: '/reports-library', label: 'Reports Library', icon: DocumentIcon, end: false },
+      { to: '/negotiation',     label: 'Negotiation',     icon: NegIcon,      end: false },
     ],
   },
   {
