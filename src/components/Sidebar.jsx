@@ -20,6 +20,7 @@ const HeatMapIcon    = () => <svg width="16" height="16" viewBox="0 0 18 18" fil
 const CalcIcon       = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="3" y="2.5" width="12" height="13" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M6 6.5H12M6 9H12M6 11.5H9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg>;
 const CashFlowIcon   = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><polyline points="2,13 5.5,8.5 8.5,10.5 12,6 15.5,7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 const PortfolioIcon  = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="7" width="3" height="9" rx="1" stroke="currentColor" strokeWidth="1.4"/><rect x="7.5" y="4" width="3" height="12" rx="1" stroke="currentColor" strokeWidth="1.4"/><rect x="13" y="1.5" width="3" height="14.5" rx="1" stroke="currentColor" strokeWidth="1.4"/></svg>;
+const TrackerIcon    = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><path d="M2 7.5H16" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/><path d="M5.5 4V2.5M12.5 4V2.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><path d="M5.5 10.8L7.5 12.5L12.5 9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 const ROIIcon        = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="6.5" cy="7" r="2.5" stroke="currentColor" strokeWidth="1.4"/><circle cx="11.5" cy="11" r="2.5" stroke="currentColor" strokeWidth="1.4"/><path d="M4 13.5L13.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>;
 const TaxIcon        = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="3" y="2" width="12" height="14" rx="2" stroke="currentColor" strokeWidth="1.5"/><circle cx="6.5" cy="7.5" r="1.2" stroke="currentColor" strokeWidth="1.2"/><circle cx="11.5" cy="10.5" r="1.2" stroke="currentColor" strokeWidth="1.2"/><path d="M7.2 11.2L10.8 6.8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg>;
 const StarIcon       = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 1.5L10.9 6.8H16.5L11.8 10L13.7 15.5L9 12.3L4.3 15.5L6.2 10L1.5 6.8H7.1L9 1.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg>;
@@ -75,9 +76,10 @@ const SECTIONS = [
     id: 'money',
     label: 'Money & Taxes',
     primary: [
-      { to: '/mortgage-calc', label: 'Mortgage Calculator', icon: CalcIcon,     end: false },
-      { to: '/cash-flow',     label: 'Cash Flow Analyzer',  icon: CashFlowIcon, end: false },
-      { to: '/portfolio',     label: 'Portfolio Dashboard', icon: PortfolioIcon,end: false },
+      { to: '/mortgage-calc',    label: 'Mortgage Calculator', icon: CalcIcon,      end: false },
+      { to: '/cash-flow',        label: 'Cash Flow Analyzer',  icon: CashFlowIcon,  end: false },
+      { to: '/portfolio',        label: 'Portfolio Dashboard', icon: PortfolioIcon, end: false },
+      { to: '/portfolio-tracker', label: 'Portfolio Tracker',  icon: TrackerIcon,   end: false },
     ],
     secondary: [
       { to: '/rental-roi',  label: 'Rental ROI',     icon: ROIIcon, end: false },
