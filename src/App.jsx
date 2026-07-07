@@ -32,6 +32,7 @@ import AIAdvisorChat from './pages/AIAdvisorChat';
 import PropertyReportGenerator from './pages/PropertyReportGenerator';
 import ReportsLibrary from './pages/ReportsLibrary';
 import BetaReadiness from './pages/BetaReadiness';
+import GettingStarted from './pages/GettingStarted';
 import './styles/global.css';
 import './App.css';
 
@@ -89,6 +90,7 @@ export default function App() {
               <Route path="/property-report-generator" element={<PropertyReportGenerator />} />
               <Route path="/reports-library"          element={<ReportsLibrary />} />
               <Route path="/beta-readiness"           element={<BetaReadiness />} />
+              <Route path="/getting-started"          element={<GettingStarted />} />
             </Routes>
           </main>
         </div>
