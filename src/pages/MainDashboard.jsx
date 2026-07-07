@@ -291,7 +291,7 @@ const KpiScoreIcon = () => (
 // Only these routes exist on `main` today. Missing analysis/scoring routes fall
 // back to the Property Analyzer; everything else is shown as "Coming soon" so no
 // button ever lands on a blank (unrouted) page.
-const LIVE_ROUTES       = new Set(['/analyzer', '/score-engine', '/market-heat-map', '/deal-pipeline']); // + Deal Pipeline (PR #5)
+const LIVE_ROUTES       = new Set(['/analyzer', '/score-engine', '/market-heat-map', '/deal-pipeline', '/portfolio-tracker']); // + Portfolio Tracker (PR #6)
 const ANALYZER_FALLBACK = new Set([]); // (no fallbacks needed)
 
 function routeState(path) {
@@ -685,7 +685,8 @@ export default function MainDashboard() {
             value={portfolio.length || '0'}
             sub={portfolio.length ? `${portfolio.length} portfolio propert${portfolio.length === 1 ? 'y' : 'ies'}` : 'No deals saved yet'}
             accent="emerald"
-            trend={portfolio.length ? 'Portfolio tracker — soon' : null}
+            onClick={() => go('/portfolio-tracker')}
+            trend={portfolio.length ? 'Open portfolio →' : null}
             trendUp
           />
           <KpiCard
@@ -694,6 +695,7 @@ export default function MainDashboard() {
             value={kpi.portfolioValue ? fmtPrice(kpi.portfolioValue) : '—'}
             sub={portfolio.length ? `Across ${portfolio.length} properties` : 'Save properties to track'}
             accent="gold"
+            onClick={() => go('/portfolio-tracker')}
             trend={portfolio.length ? `$${Math.round(kpi.portfolioValue * 0.03).toLocaleString()} est. annual appreciation` : null}
             trendUp
           />
@@ -792,7 +794,7 @@ export default function MainDashboard() {
             <h2 className="card-title">Recent Properties & Deals</h2>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <span className="badge badge-blue">{tableRows.length} total</span>
-              <button className="btn btn-ghost btn-sm" onClick={() => go('/portfolio-tracker')} disabled={isComingSoon('/portfolio-tracker')}>View all <Soon /></button>
+              <button className="btn btn-ghost btn-sm" onClick={() => go('/portfolio-tracker')} disabled={isComingSoon('/portfolio-tracker')}>View all {isComingSoon('/portfolio-tracker') && <Soon />}</button>
             </div>
           </div>
 

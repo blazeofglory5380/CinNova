@@ -27,6 +27,7 @@ import MainDashboard from './pages/MainDashboard';
 import ScoreEngine from './pages/ScoreEngine';
 import MarketHeatMap from './pages/MarketHeatMap';
 import DealPipeline from './pages/DealPipeline';
+import PortfolioTracker from './pages/PortfolioTracker';
 import './styles/global.css';
 import './App.css';
 
@@ -79,6 +80,7 @@ export default function App() {
               <Route path="/score-engine"             element={<ScoreEngine />} />
               <Route path="/market-heat-map"          element={<MarketHeatMap />} />
               <Route path="/deal-pipeline"           element={<DealPipeline />} />
+              <Route path="/portfolio-tracker"        element={<PortfolioTracker />} />
             </Routes>
           </main>
         </div>
