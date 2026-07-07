@@ -624,7 +624,7 @@ export default function AIAdvisorChat() {
             <button className="btn btn-outline" onClick={() => navigate('/market-heat-map')}>Explore Markets</button>
           </div>
         </div>
-        <BetaFooter page="AI Advisor Chat" readinessSoon />
+        <BetaFooter page="AI Advisor Chat" />
       </div>
     );
   }
@@ -710,7 +710,7 @@ export default function AIAdvisorChat() {
 
       </div>
 
-      <BetaFooter page="AI Advisor Chat" readinessSoon />
+      <BetaFooter page="AI Advisor Chat" />
     </div>
   );
 }

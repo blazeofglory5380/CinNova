@@ -470,7 +470,7 @@ export default function MarketHeatMap() {
         </div>
       </div>
 
-      <BetaFooter page="Market Heat Map" readinessSoon />
+      <BetaFooter page="Market Heat Map" />
 
     </div>
   );

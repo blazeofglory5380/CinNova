@@ -614,7 +614,7 @@ export default function ScoreEngine() {
         </>
       )}
 
-      <BetaFooter page="Score Engine" readinessSoon />
+      <BetaFooter page="Score Engine" />
 
     </div>
   );

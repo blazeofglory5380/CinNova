@@ -291,7 +291,7 @@ const KpiScoreIcon = () => (
 // Only these routes exist on `main` today. Missing analysis/scoring routes fall
 // back to the Property Analyzer; everything else is shown as "Coming soon" so no
 // button ever lands on a blank (unrouted) page.
-const LIVE_ROUTES       = new Set(['/analyzer', '/score-engine', '/market-heat-map', '/deal-pipeline', '/portfolio-tracker', '/ai-advisor-chat', '/property-report-generator']); // + Property Report Generator (PR #9)
+const LIVE_ROUTES       = new Set(['/analyzer', '/score-engine', '/market-heat-map', '/deal-pipeline', '/portfolio-tracker', '/ai-advisor-chat', '/property-report-generator', '/beta-readiness']); // + Beta Readiness (PR #11)
 const ANALYZER_FALLBACK = new Set([]); // (no fallbacks needed)
 
 function routeState(path) {
@@ -662,7 +662,7 @@ export default function MainDashboard() {
           onClick={() => go('/beta-readiness')}
           disabled={isComingSoon('/beta-readiness')}
         >
-          What's in beta <Soon />
+          What's in beta {isComingSoon('/beta-readiness') && <Soon />}
         </button>
       </div>
 
@@ -1001,7 +1001,7 @@ export default function MainDashboard() {
         </div>
       </div>
 
-      <BetaFooter page="Main Dashboard" readinessSoon />
+      <BetaFooter page="Main Dashboard" />
 
     </div>
   );

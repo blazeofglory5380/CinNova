@@ -540,7 +540,7 @@ export default function PropertyReportGenerator() {
         </div>
       )}
 
-      <BetaFooter page="Property Report Generator" readinessSoon />
+      <BetaFooter page="Property Report Generator" />
 
     </div>
   );

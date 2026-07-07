@@ -233,7 +233,7 @@ export default function ReportsLibrary() {
         </>
       )}
 
-      <BetaFooter page="Reports Library" readinessSoon />
+      <BetaFooter page="Reports Library" />
     </div>
   );
 }

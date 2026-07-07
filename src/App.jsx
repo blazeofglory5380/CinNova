@@ -31,6 +31,7 @@ import PortfolioTracker from './pages/PortfolioTracker';
 import AIAdvisorChat from './pages/AIAdvisorChat';
 import PropertyReportGenerator from './pages/PropertyReportGenerator';
 import ReportsLibrary from './pages/ReportsLibrary';
+import BetaReadiness from './pages/BetaReadiness';
 import './styles/global.css';
 import './App.css';
 
@@ -87,6 +88,7 @@ export default function App() {
               <Route path="/ai-advisor-chat"          element={<AIAdvisorChat />} />
               <Route path="/property-report-generator" element={<PropertyReportGenerator />} />
               <Route path="/reports-library"          element={<ReportsLibrary />} />
+              <Route path="/beta-readiness"           element={<BetaReadiness />} />
             </Routes>
           </main>
         </div>
