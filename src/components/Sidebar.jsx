@@ -7,6 +7,7 @@ const HomeIcon       = () => <svg width="16" height="16" viewBox="0 0 18 18" fil
 const DashboardIcon  = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.5"/><rect x="10" y="2" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.5"/><rect x="2" y="10" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.5"/><rect x="10" y="10" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.5"/></svg>;
 const SearchIcon     = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="7.5" cy="7.5" r="5" stroke="currentColor" strokeWidth="1.5"/><path d="M11.5 11.5L16 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>;
 const AnalyzerIcon   = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="7.5" cy="7.5" r="5" stroke="currentColor" strokeWidth="1.5"/><path d="M11.5 11.5L16 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M5.5 7.5H9.5M7.5 5.5V9.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg>;
+const ScoreIcon      = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M3 12.5C3 9.46 5.69 7 9 7s6 2.46 6 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M9 7V4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><path d="M5.5 8L3.8 6.3M12.5 8L14.2 6.3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/><path d="M9 12.5L6.5 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><circle cx="9" cy="12.5" r="1.4" fill="currentColor"/></svg>;
 const DealIcon       = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2.5" y="4" width="13" height="10.5" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M5.5 4V3C5.5 2.2 6.1 1.7 6.9 1.7H11.1C11.9 1.7 12.5 2.2 12.5 3V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M5.5 10.5L7.7 8.3L9.5 10L12.7 6.8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 const GalleryIcon    = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="11" rx="2" stroke="currentColor" strokeWidth="1.5"/><circle cx="6.5" cy="6" r="1.5" fill="currentColor" opacity="0.7"/><path d="M2 10.5L5.5 7.5L8 9.5L11 6.5L16 10.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 const WorkspaceIcon  = () => <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M2.5 5.2C2.5 4.1 3.1 3.5 4.2 3.5H7L8.4 5H13.8C14.9 5 15.5 5.6 15.5 6.7V13.3C15.5 14.4 14.9 15 13.8 15H4.2C3.1 15 2.5 14.4 2.5 13.3V5.2Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="M5.5 9.2H12.5M5.5 12H9.7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>;
@@ -38,8 +39,8 @@ const SECTIONS = [
     id: 'start',
     label: 'Start Here',
     primary: [
-      { to: '/',          label: 'Home',      icon: HomeIcon,      end: true  },
-      { to: '/dashboard', label: 'Dashboard', icon: DashboardIcon, end: true  },
+      { to: '/',               label: 'Home',      icon: HomeIcon,      end: true  },
+      { to: '/main-dashboard', label: 'Dashboard', icon: DashboardIcon, end: true  },
     ],
   },
   {
@@ -48,6 +49,7 @@ const SECTIONS = [
     primary: [
       { to: '/property-search', label: 'Property Search',   icon: SearchIcon,   end: false },
       { to: '/analyzer',        label: 'Property Analyzer', icon: AnalyzerIcon, end: false },
+      { to: '/score-engine',    label: 'Score Engine',      icon: ScoreIcon,    end: false },
       { to: '/deal-analyzer',   label: 'Deal Analyzer',     icon: DealIcon,     end: false },
     ],
     secondary: [
