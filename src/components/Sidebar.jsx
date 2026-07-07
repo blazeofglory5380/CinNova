@@ -43,8 +43,9 @@ const SECTIONS = [
     id: 'start',
     label: 'Start Here',
     primary: [
-      { to: '/',               label: 'Home',      icon: HomeIcon,      end: true  },
-      { to: '/main-dashboard', label: 'Dashboard', icon: DashboardIcon, end: true  },
+      { to: '/',                label: 'Home',            icon: HomeIcon,      end: true  },
+      { to: '/main-dashboard',  label: 'Dashboard',       icon: DashboardIcon, end: true  },
+      { to: '/getting-started', label: 'Getting Started', icon: StarIcon,      end: true  },
     ],
   },
   {
