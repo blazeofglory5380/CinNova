@@ -25,6 +25,7 @@ import DevStudio from './pages/DevStudio';
 import ArchitectureIntelligence from './pages/ArchitectureIntelligence';
 import MainDashboard from './pages/MainDashboard';
 import ScoreEngine from './pages/ScoreEngine';
+import MarketHeatMap from './pages/MarketHeatMap';
 import './styles/global.css';
 import './App.css';
 
@@ -75,6 +76,7 @@ export default function App() {
               <Route path="/architecture-intelligence" element={<ArchitectureIntelligence />} />
               <Route path="/main-dashboard"           element={<MainDashboard />} />
               <Route path="/score-engine"             element={<ScoreEngine />} />
+              <Route path="/market-heat-map"          element={<MarketHeatMap />} />
             </Routes>
           </main>
         </div>

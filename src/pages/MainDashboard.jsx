@@ -291,7 +291,7 @@ const KpiScoreIcon = () => (
 // Only these routes exist on `main` today. Missing analysis/scoring routes fall
 // back to the Property Analyzer; everything else is shown as "Coming soon" so no
 // button ever lands on a blank (unrouted) page.
-const LIVE_ROUTES       = new Set(['/analyzer', '/score-engine']); // Score Engine shipped (PR #2)
+const LIVE_ROUTES       = new Set(['/analyzer', '/score-engine', '/market-heat-map']); // + Market Heat Map (PR #4)
 const ANALYZER_FALLBACK = new Set([]); // (no fallbacks needed)
 
 function routeState(path) {
@@ -736,7 +736,7 @@ export default function MainDashboard() {
               Analyze a Property
             </button>
             <button className="btn btn-outline" onClick={() => go('/market-heat-map')} disabled={isComingSoon('/market-heat-map')}>
-              Explore Markets <Soon />
+              Explore Markets {isComingSoon('/market-heat-map') && <Soon />}
             </button>
           </div>
         </div>
@@ -911,7 +911,7 @@ export default function MainDashboard() {
         <div className="section-header">
           <h2 className="section-title">Market Opportunities</h2>
           <button className="btn btn-ghost btn-sm" onClick={() => go('/market-heat-map')} disabled={isComingSoon('/market-heat-map')}>
-            Full market analysis <Soon />
+            Full market analysis {isComingSoon('/market-heat-map') && <Soon />}
           </button>
         </div>
         <div className="wd-markets-grid">
@@ -985,7 +985,7 @@ export default function MainDashboard() {
           <button className="wd-qa-btn wd-qa-btn--purple" onClick={() => go('/market-heat-map')} disabled={isComingSoon('/market-heat-map')}>
             <span className="wd-qa-icon"><MktIcon /></span>
             <div>
-              <div className="wd-qa-label">Market Heat Map <Soon /></div>
+              <div className="wd-qa-label">Market Heat Map {isComingSoon('/market-heat-map') && <Soon />}</div>
               <div className="wd-qa-sub">Nashville, Dallas, Raleigh +</div>
             </div>
           </button>
