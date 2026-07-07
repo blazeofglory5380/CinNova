@@ -28,6 +28,7 @@ import ScoreEngine from './pages/ScoreEngine';
 import MarketHeatMap from './pages/MarketHeatMap';
 import DealPipeline from './pages/DealPipeline';
 import PortfolioTracker from './pages/PortfolioTracker';
+import AIAdvisorChat from './pages/AIAdvisorChat';
 import './styles/global.css';
 import './App.css';
 
@@ -81,6 +82,7 @@ export default function App() {
               <Route path="/market-heat-map"          element={<MarketHeatMap />} />
               <Route path="/deal-pipeline"           element={<DealPipeline />} />
               <Route path="/portfolio-tracker"        element={<PortfolioTracker />} />
+              <Route path="/ai-advisor-chat"          element={<AIAdvisorChat />} />
             </Routes>
           </main>
         </div>
