@@ -291,7 +291,7 @@ const KpiScoreIcon = () => (
 // Only these routes exist on `main` today. Missing analysis/scoring routes fall
 // back to the Property Analyzer; everything else is shown as "Coming soon" so no
 // button ever lands on a blank (unrouted) page.
-const LIVE_ROUTES       = new Set(['/analyzer', '/score-engine', '/market-heat-map', '/deal-pipeline', '/portfolio-tracker']); // + Portfolio Tracker (PR #6)
+const LIVE_ROUTES       = new Set(['/analyzer', '/score-engine', '/market-heat-map', '/deal-pipeline', '/portfolio-tracker', '/ai-advisor-chat']); // + AI Advisor Chat (PR #8)
 const ANALYZER_FALLBACK = new Set([]); // (no fallbacks needed)
 
 function routeState(path) {
@@ -903,7 +903,7 @@ export default function MainDashboard() {
           </div>
 
           <button className="btn btn-primary" style={{ width: '100%', marginTop: 16 }} onClick={() => go('/ai-advisor-chat')} disabled={isComingSoon('/ai-advisor-chat')}>
-            AI Advisor <Soon />
+            AI Advisor {isComingSoon('/ai-advisor-chat') && <Soon />}
           </button>
         </div>
       </div>
@@ -973,7 +973,7 @@ export default function MainDashboard() {
           <button className="wd-qa-btn wd-qa-btn--teal" onClick={() => go('/ai-advisor-chat')} disabled={isComingSoon('/ai-advisor-chat')}>
             <span className="wd-qa-icon"><HubIcon /></span>
             <div>
-              <div className="wd-qa-label">AI Advisor <Soon /></div>
+              <div className="wd-qa-label">AI Advisor {isComingSoon('/ai-advisor-chat') && <Soon />}</div>
               <div className="wd-qa-sub">Ask about your portfolio</div>
             </div>
           </button>
