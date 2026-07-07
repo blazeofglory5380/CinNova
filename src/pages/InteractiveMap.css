@@ -168,171 +168,109 @@
   overflow: hidden;
   height: calc(100vh - 268px);
   min-height: 500px;
+  background: #eaf0f4;
   box-shadow: 0 4px 28px rgba(0,0,0,0.18);
 }
 
-/* Dark background */
-.imap-map-wrap--dark .imap-map-bg {
-  position: absolute; inset: 0;
-  background-color: #0c1829;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px),
-    linear-gradient(rgba(37,99,235,0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(37,99,235,0.055) 1px, transparent 1px);
-  background-size: 24px 24px, 24px 24px, 120px 120px, 120px 120px;
+/* Real interactive basemap canvas (maplibre-gl + OpenFreeMap vector tiles) */
+.imap-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.imap-canvas .maplibregl-canvas { outline: none; }
+
+/* Keep maplibre controls clear of the overlay chrome + on-brand */
+.imap-map-wrap .maplibregl-ctrl-bottom-right { margin-bottom: 6px; }
+.imap-map-wrap .maplibregl-ctrl-group {
+  border-radius: 10px; overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+  border: 1px solid rgba(0,0,0,0.08);
+}
+.imap-map-wrap .maplibregl-ctrl-attrib {
+  font-size: 10px; border-radius: 8px 0 0 0;
 }
 
-/* Light background */
-.imap-map-wrap--light .imap-map-bg {
-  position: absolute; inset: 0;
-  background-color: #dce8d8;
-  background-image:
-    linear-gradient(rgba(0,0,0,0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,0.055) 1px, transparent 1px),
-    linear-gradient(rgba(0,0,0,0.09) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,0.09) 1px, transparent 1px);
-  background-size: 24px 24px, 24px 24px, 120px 120px, 120px 120px;
+/* ── Loading overlay ─────────────────────────────── */
+.imap-map-loading {
+  position: absolute; inset: 0; z-index: 20;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 12px;
+  background: rgba(234, 240, 244, 0.92);
+  font-size: 13px; font-weight: 600; color: var(--gray-500);
 }
+.imap-spinner {
+  width: 32px; height: 32px;
+  border: 3px solid rgba(13,148,136,0.18);
+  border-top-color: #0d9488;
+  border-radius: 50%;
+  animation: imap-spin 0.8s linear infinite;
+}
+@keyframes imap-spin { to { transform: rotate(360deg); } }
 
-.imap-map-svg {
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
+/* ── Error state ─────────────────────────────────── */
+.imap-map-error {
+  position: absolute; inset: 0; z-index: 20;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 10px;
+  padding: 24px; text-align: center;
+  background: #fff5f5; color: #b42318;
+  font-size: 13px; font-weight: 600;
 }
-.imap-map-wrap--light .imap-map-svg { opacity: 0.22; }
+.imap-map-error span { font-size: 30px; }
+.imap-map-error p { margin: 0; max-width: 340px; }
 
-/* ── Property pins ───────────────────────────────── */
-.imap-pin {
-  position: absolute;
-  transform: translate(-50%, -100%);
-  display: flex; flex-direction: column; align-items: center;
-  background: none; border: none; cursor: pointer;
-  z-index: 10; padding: 0;
-  transition: transform 0.14s;
-}
-.imap-pin:hover    { transform: translate(-50%, -100%) scale(1.16); z-index: 20; }
-.imap-pin--active  { transform: translate(-50%, -100%) scale(1.22); z-index: 20; }
-
-.imap-pin-bubble {
-  background: rgba(10, 20, 48, 0.88);
-  border: 1.5px solid var(--pc, rgba(255,255,255,0.25));
-  border-radius: 7px;
-  padding: 4px 8px;
-  display: flex; flex-direction: column; align-items: center; gap: 1px;
-  white-space: nowrap; min-width: 44px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.04);
-}
-.imap-pin--active .imap-pin-bubble {
-  background: var(--pc, #2563eb);
-  border-color: transparent;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.5);
-}
-
-/* Pulse ring on top-scored pins — uses transform+opacity (compositor only, no repaint) */
-@keyframes imap-pulse {
-  0%        { transform: scale(1);    opacity: 0.65; }
-  70%, 100% { transform: scale(1.55); opacity: 0; }
-}
-.imap-pin--top .imap-pin-bubble { position: relative; }
-.imap-pin--top .imap-pin-bubble::after {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  border-radius: 9px;
-  border: 2px solid rgba(5, 150, 105, 0.55);
-  animation: imap-pulse 2.4s ease-out infinite;
-  pointer-events: none;
-}
-
-.imap-pin-score {
-  font-size: 11px; font-weight: 900;
-  color: var(--pc, white); line-height: 1;
-}
-.imap-pin--active .imap-pin-score { color: white; }
-
-.imap-pin-price {
-  font-size: 9px; font-weight: 700;
-  color: rgba(255,255,255,0.72); line-height: 1;
-}
-.imap-pin--active .imap-pin-price { color: rgba(255,255,255,0.92); }
-
-.imap-pin-tip {
-  width: 0; height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 6px solid rgba(10, 20, 48, 0.88);
-  margin-top: -1px;
-}
-.imap-pin--active .imap-pin-tip { border-top-color: var(--pc, #2563eb); }
-
-/* Light map pin overrides */
-.imap-map-wrap--light .imap-pin-bubble {
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 3px 12px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.07);
-}
-.imap-map-wrap--light .imap-pin-score { color: var(--pc); }
-.imap-map-wrap--light .imap-pin-price { color: var(--gray-600); }
-.imap-map-wrap--light .imap-pin-tip   { border-top-color: rgba(255,255,255,0.94); }
-.imap-map-wrap--light .imap-pin--active .imap-pin-bubble {
-  background: var(--pc); border-color: transparent;
-}
-.imap-map-wrap--light .imap-pin--active .imap-pin-score { color: white; }
-.imap-map-wrap--light .imap-pin--active .imap-pin-price { color: rgba(255,255,255,0.88); }
-.imap-map-wrap--light .imap-pin--active .imap-pin-tip   { border-top-color: var(--pc); }
-
-/* ── Map controls ────────────────────────────────── */
-.imap-controls {
+/* ── AI market-scan status badge ─────────────────── */
+.imap-scan-badge {
   position: absolute; top: 12px; left: 12px; z-index: 15;
+  display: flex; align-items: center; gap: 7px;
+  padding: 6px 11px; border-radius: 999px;
+  font-size: 10px; font-weight: 800; letter-spacing: 1px;
+  text-transform: uppercase;
+  background: rgba(255,255,255,0.94);
+  border: 1px solid rgba(13,148,136,0.28);
+  color: #0f766e;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
 }
-.imap-ctrl-group {
-  display: flex; gap: 3px;
-  background: rgba(255,255,255,0.92);
-  border: 1px solid rgba(0,0,0,0.10);
-  border-radius: 9px; padding: 3px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+.imap-scan-badge__dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #10b981; box-shadow: 0 0 8px 1px rgba(16,185,129,0.7);
+  animation: imap-blink 2.2s ease-in-out infinite;
 }
-.imap-ctrl-btn {
-  padding: 5px 10px; border: none; background: transparent;
-  border-radius: 6px; font-size: 14px; cursor: pointer; transition: 0.12s;
+@keyframes imap-blink { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+/* ── Reset-view button ───────────────────────────── */
+.imap-reset-btn {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  z-index: 15;
+  display: inline-flex; align-items: center;
+  padding: 7px 14px; border-radius: 999px;
+  font-size: 11px; font-weight: 800; letter-spacing: 0.3px;
+  color: var(--gray-800); background: rgba(255,255,255,0.94);
+  border: 1px solid rgba(0,0,0,0.10); cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+  transition: background 0.14s, box-shadow 0.14s;
 }
-.imap-ctrl-btn.active       { background: var(--gray-900); }
-.imap-ctrl-btn:hover:not(.active) { background: var(--gray-100); }
+.imap-reset-btn:hover { background: #ffffff; box-shadow: 0 4px 16px rgba(0,0,0,0.18); }
 
 /* ── Legend ──────────────────────────────────────── */
 .imap-legend {
   position: absolute; bottom: 12px; left: 12px;
-  background: rgba(6,12,24,0.84);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.94);
+  border: 1px solid rgba(0,0,0,0.10);
   border-radius: 10px; padding: 8px 14px;
   display: flex; gap: 14px;
   z-index: 15;
-}
-.imap-map-wrap--light .imap-legend {
-  background: rgba(255,255,255,0.92);
-  border-color: rgba(0,0,0,0.10);
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
-.imap-map-wrap--light .imap-legend-item { color: var(--gray-700); }
-
 .imap-legend-item {
   display: flex; align-items: center; gap: 6px;
-  font-size: 10px; color: rgba(255,255,255,0.78); font-weight: 700;
+  font-size: 10px; color: var(--gray-700); font-weight: 700;
 }
 .imap-legend-dot {
   width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
 }
 
-/* ── Map empty overlay ───────────────────────────── */
-.imap-map-empty {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 8px;
-  z-index: 5; pointer-events: none;
+/* ── Reduced motion ──────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .imap-scan-badge__dot { animation: none; }
 }
-.imap-map-empty span:first-child { font-size: 16px; font-weight: 800; color: rgba(255,255,255,0.55); }
-.imap-map-empty span:last-child  { font-size: 13px; color: rgba(255,255,255,0.35); }
-.imap-map-wrap--light .imap-map-empty span { color: var(--gray-500); }
 
 /* ── Selected property detail card ──────────────── */
 .imap-detail {
@@ -419,4 +357,5 @@
   .imap-insights  { grid-template-columns: 1fr 1fr; }
   .imap-insight-item { padding: 12px 14px; }
   .imap-detail    { width: calc(100% - 24px); }
+  .imap-reset-btn { display: none; }
 }
