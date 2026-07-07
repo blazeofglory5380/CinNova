@@ -30,6 +30,7 @@ import DealPipeline from './pages/DealPipeline';
 import PortfolioTracker from './pages/PortfolioTracker';
 import AIAdvisorChat from './pages/AIAdvisorChat';
 import PropertyReportGenerator from './pages/PropertyReportGenerator';
+import ReportsLibrary from './pages/ReportsLibrary';
 import './styles/global.css';
 import './App.css';
 
@@ -85,6 +86,7 @@ export default function App() {
               <Route path="/portfolio-tracker"        element={<PortfolioTracker />} />
               <Route path="/ai-advisor-chat"          element={<AIAdvisorChat />} />
               <Route path="/property-report-generator" element={<PropertyReportGenerator />} />
+              <Route path="/reports-library"          element={<ReportsLibrary />} />
             </Routes>
           </main>
         </div>
