@@ -1,35 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import { DEMO_PROPERTIES, PROPERTY_TYPES } from '../data/demoProperties';
 import { selectProperty } from '../services/propertyWorkflow';
 import { addToPortfolio } from '../services/propertyStorage';
 import './InteractiveMap.css';
 
-/* ── Dataset (matches PropertySearch listings + map coordinates) ─────── */
-// mx/my = % position within map, roughly mirroring US geography
-/*
-const LEGACY_PROPERTIES = [
-  { id:1,  address:'2140 Brickell Ave',    city:'Miami, FL 33129',        price:847000,  beds:4, baths:3, sqft:2840, type:'Condo',         score:91, roi:8.4,  cashFlow:1240, capRate:4.5, rent:3200, mx:72, my:77 },
-  { id:2,  address:'4821 Lake Shore Dr',   city:'Chicago, IL 60614',      price:624000,  beds:3, baths:2, sqft:1920, type:'Condo',         score:84, roi:6.8,  cashFlow:720,  capRate:5.4, rent:2800, mx:51, my:28 },
-  { id:3,  address:'918 Congress Ave',     city:'Austin, TX 78701',       price:395000,  beds:2, baths:2, sqft:1240, type:'Single Family', score:88, roi:9.2,  cashFlow:980,  capRate:6.4, rent:2100, mx:38, my:67 },
-  { id:4,  address:'7701 Sunset Blvd',     city:'Los Angeles, CA 90046',  price:1240000, beds:4, baths:3, sqft:2200, type:'Single Family', score:76, roi:5.4,  cashFlow:310,  capRate:3.5, rent:4400, mx:9,  my:52 },
-  { id:5,  address:'220 Peachtree St NE',  city:'Atlanta, GA 30303',      price:285000,  beds:2, baths:1, sqft:980,  type:'Condo',         score:82, roi:10.1, cashFlow:1180, capRate:7.5, rent:1800, mx:60, my:60 },
-  { id:6,  address:'3400 E Camelback Rd',  city:'Phoenix, AZ 85018',      price:520000,  beds:3, baths:2, sqft:1680, type:'Single Family', score:89, roi:8.7,  cashFlow:1050, capRate:6.0, rent:2600, mx:19, my:57 },
-  { id:7,  address:'15 W 65th St',         city:'New York, NY 10023',     price:2100000, beds:3, baths:2, sqft:1400, type:'Condo',         score:72, roi:4.2,  cashFlow:-120, capRate:3.7, rent:6500, mx:78, my:27 },
-  { id:8,  address:'482 Castro St',        city:'San Francisco, CA 94114',price:1580000, beds:4, baths:3, sqft:2100, type:'Single Family', score:68, roi:3.8,  cashFlow:-340, capRate:2.8, rent:4800, mx:6,  my:43 },
-  { id:9,  address:'1122 Commerce St',     city:'Dallas, TX 75201',       price:340000,  beds:2, baths:2, sqft:1180, type:'Condo',         score:86, roi:9.6,  cashFlow:1100, capRate:7.1, rent:2000, mx:37, my:63 },
-  { id:10, address:'5880 Delmar Blvd',     city:'St. Louis, MO 63112',    price:198000,  beds:3, baths:1, sqft:1420, type:'Single Family', score:79, roi:11.4, cashFlow:920,  capRate:8.5, rent:1400, mx:50, my:42 },
-  { id:11, address:'940 Belmont Ave',      city:'Nashville, TN 37212',    price:465000,  beds:3, baths:2, sqft:1640, type:'Single Family', score:87, roi:7.9,  cashFlow:840,  capRate:5.6, rent:2400, mx:58, my:52 },
-  { id:12, address:'2001 Blake St',        city:'Denver, CO 80205',       price:510000,  beds:2, baths:2, sqft:1360, type:'Condo',         score:85, roi:8.1,  cashFlow:760,  capRate:5.2, rent:2200, mx:27, my:39 },
-  { id:13, address:'1440 W Fullerton Ave', city:'Chicago, IL 60614',      price:1180000, beds:8, baths:8, sqft:5200, type:'Multifamily',   score:93, roi:10.2, cashFlow:2400, capRate:7.8, rent:7800, mx:53, my:30 },
-  { id:14, address:'2240 San Pablo Ave',   city:'Oakland, CA 94612',      price:890000,  beds:4, baths:4, sqft:3200, type:'Multifamily',   score:86, roi:8.4,  cashFlow:1100, capRate:6.5, rent:4800, mx:7,  my:45 },
-  { id:15, address:'3800 Magazine St',     city:'New Orleans, LA 70115',  price:425000,  beds:4, baths:4, sqft:2800, type:'Multifamily',   score:94, roi:12.8, cashFlow:1640, capRate:8.9, rent:3200, mx:48, my:70 },
-  { id:16, address:'1204 S Brevard St',    city:'Charlotte, NC 28203',    price:360000,  beds:4, baths:3, sqft:2100, type:'Single Family', score:90, roi:9.8,  cashFlow:1020, capRate:7.2, rent:2400, mx:64, my:53 },
-  { id:17, address:'5542 Rainier Ave S',   city:'Seattle, WA 98118',      price:680000,  beds:3, baths:2, sqft:1800, type:'Single Family', score:83, roi:7.2,  cashFlow:640,  capRate:5.5, rent:3100, mx:9,  my:18 },
-  { id:18, address:'820 Tchoupitoulas St', city:'New Orleans, LA 70130',  price:195000,  beds:2, baths:1, sqft:920,  type:'Condo',         score:88, roi:13.5, cashFlow:780,  capRate:9.2, rent:1500, mx:50, my:73 },
-];
-
-*/
 const PROPERTIES = DEMO_PROPERTIES;
 
 /* ── Helpers ─────────────────────────────────────── */
@@ -45,6 +22,31 @@ const fmtK = n => n >= 1e6
   : `$${Math.round(n / 1000)}K`;
 const fmtM = n => '$' + Math.abs(Math.round(n)).toLocaleString();
 const sgn  = n => n >= 0 ? '+' : '−';
+
+/* ── Real basemap (PoisonGuard stack: maplibre-gl + OpenFreeMap vector tiles) ──
+   Free, keyless OpenStreetMap vector tiles rendered with WebGL. Property
+   markers are GeoJSON layers with clustering + a pulse on top-scored deals.   */
+const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
+const US_VIEW   = { center: [-98, 39.5], zoom: 3.4 };
+const EMPTY_FC  = { type: 'FeatureCollection', features: [] };
+
+function buildGeoJSON(list) {
+  return {
+    type: 'FeatureCollection',
+    features: list
+      .filter(p => p.longitude != null && p.latitude != null)
+      .map(p => ({
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [p.longitude, p.latitude] },
+        properties: {
+          id:       String(p.id),
+          score:    p.score,
+          scoreStr: String(p.score),
+          color:    sColor(p.score),
+        },
+      })),
+  };
+}
 
 /* ── Sub-components (defined outside to prevent remount) ─────────────── */
 function InsightItem({ icon, label, value, sub }) {
@@ -98,8 +100,9 @@ export default function InteractiveMap() {
   const [fType,    setFType]    = useState('all');
   const [fScore,   setFScore]   = useState(0);
   const [sort,     setSort]     = useState('score');
-  const [layer,    setLayer]    = useState('dark');
   const [saved,    setSaved]    = useState(false);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [loadError, setLoadError] = useState(null);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -130,6 +133,21 @@ export default function InteractiveMap() {
     };
   }, [filtered]);
 
+  /* ── Map plumbing ─────────────────────────────── */
+  const containerRef = useRef(null);
+  const mapRef       = useRef(null);
+  const initialized  = useRef(false);
+  const mapReady     = useRef(false);
+  const filteredRef  = useRef(filtered);
+  const selectRef    = useRef(null);
+  filteredRef.current = filtered;
+
+  const byId = useMemo(() => {
+    const m = new Map();
+    PROPERTIES.forEach(p => m.set(String(p.id), p));
+    return m;
+  }, []);
+
   const handleSelect = p => {
     setSelected(p);
     setSaved(false);
@@ -156,6 +174,7 @@ export default function InteractiveMap() {
       longitude:   p.longitude,
     });
   };
+  selectRef.current = handleSelect;
 
   const handleSave = () => {
     if (!selected) return;
@@ -181,6 +200,175 @@ export default function InteractiveMap() {
     setSaved(true);
   };
 
+  // Initialize the map once
+  useEffect(() => {
+    if (initialized.current || !containerRef.current) return;
+    initialized.current = true;
+
+    let m;
+    try {
+      m = new maplibregl.Map({
+        container: containerRef.current,
+        style: MAP_STYLE,
+        center: US_VIEW.center,
+        zoom: US_VIEW.zoom,
+        minZoom: 2,
+        maxZoom: 17,
+        attributionControl: { customAttribution: '© OpenFreeMap · © OpenStreetMap contributors' },
+      });
+    } catch {
+      initialized.current = false;
+      setTimeout(() => setLoadError('WebGL is required to display the map. Try a modern browser.'), 0);
+      return;
+    }
+
+    mapRef.current = m;
+    m.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
+
+    m.on('error', () => { if (!mapReady.current) setLoadError('Map tiles failed to load. Check your connection.'); });
+
+    m.on('load', () => {
+      m.addSource('props', {
+        type: 'geojson',
+        data: buildGeoJSON(filteredRef.current),
+        cluster: true,
+        clusterMaxZoom: 8,
+        clusterRadius: 44,
+      });
+
+      // Clustered markets
+      m.addLayer({
+        id: 'clusters', type: 'circle', source: 'props', filter: ['has', 'point_count'],
+        paint: {
+          'circle-color': '#0d9488',
+          'circle-opacity': 0.88,
+          'circle-radius': ['step', ['get', 'point_count'], 16, 5, 22, 10, 28],
+          'circle-stroke-width': 2,
+          'circle-stroke-color': 'rgba(255,255,255,0.92)',
+        },
+      });
+      m.addLayer({
+        id: 'cluster-count', type: 'symbol', source: 'props', filter: ['has', 'point_count'],
+        layout: { 'text-field': '{point_count_abbreviated}', 'text-size': 12 },
+        paint: { 'text-color': '#ffffff' },
+      });
+
+      // Pulse ring on top-scored deals
+      m.addLayer({
+        id: 'prop-pulse', type: 'circle', source: 'props',
+        filter: ['all', ['!', ['has', 'point_count']], ['>=', ['get', 'score'], 90]],
+        paint: { 'circle-color': '#059669', 'circle-radius': 16, 'circle-opacity': 0.22, 'circle-stroke-width': 0 },
+      });
+
+      // Individual property markers (score-colored)
+      m.addLayer({
+        id: 'prop-points', type: 'circle', source: 'props', filter: ['!', ['has', 'point_count']],
+        paint: {
+          'circle-color': ['get', 'color'],
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 3, 5, 8, 8, 12, 11],
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#ffffff',
+        },
+      });
+      m.addLayer({
+        id: 'prop-score', type: 'symbol', source: 'props', filter: ['!', ['has', 'point_count']],
+        layout: {
+          'text-field': ['get', 'scoreStr'],
+          'text-size': ['interpolate', ['linear'], ['zoom'], 6, 0, 8.5, 10],
+          'text-allow-overlap': false,
+        },
+        paint: { 'text-color': '#ffffff' },
+      });
+
+      // Selected-property highlight ring
+      m.addSource('sel', { type: 'geojson', data: EMPTY_FC });
+      m.addLayer({
+        id: 'sel-ring', type: 'circle', source: 'sel',
+        paint: {
+          'circle-radius': 15, 'circle-opacity': 0,
+          'circle-stroke-width': 3, 'circle-stroke-color': '#059669',
+        },
+      });
+
+      mapReady.current = true;
+      setMapLoaded(true);
+    });
+
+    // Cluster click → zoom in
+    m.on('click', 'clusters', async e => {
+      const [f] = m.queryRenderedFeatures(e.point, { layers: ['clusters'] });
+      if (!f) return;
+      try {
+        const z = await m.getSource('props').getClusterExpansionZoom(f.properties.cluster_id);
+        m.easeTo({ center: f.geometry.coordinates, zoom: z + 0.6 });
+      } catch { /* noop */ }
+    });
+    // Marker click → select property (drives the React detail card)
+    m.on('click', 'prop-points', e => {
+      const f = e.features?.[0];
+      if (!f) return;
+      const p = byId.get(f.properties.id);
+      if (p) selectRef.current?.(p);
+    });
+    for (const l of ['clusters', 'prop-points']) {
+      m.on('mouseenter', l, () => { m.getCanvas().style.cursor = 'pointer'; });
+      m.on('mouseleave', l, () => { m.getCanvas().style.cursor = ''; });
+    }
+
+    return () => {
+      initialized.current = false;
+      mapReady.current = false;
+      m.remove();
+      mapRef.current = null;
+    };
+  }, [byId]);
+
+  // Keep map markers in sync with the filtered list
+  useEffect(() => {
+    if (!mapLoaded) return;
+    const src = mapRef.current?.getSource('props');
+    if (src) src.setData(buildGeoJSON(filtered));
+  }, [filtered, mapLoaded]);
+
+  // Reflect the current selection on the map + fly to it
+  useEffect(() => {
+    if (!mapLoaded) return;
+    const m = mapRef.current;
+    if (!m) return;
+    const sel = m.getSource('sel');
+    if (selected && selected.longitude != null && selected.latitude != null) {
+      if (sel) sel.setData({
+        type: 'FeatureCollection',
+        features: [{ type: 'Feature', geometry: { type: 'Point', coordinates: [selected.longitude, selected.latitude] }, properties: {} }],
+      });
+      if (m.getLayer('sel-ring')) m.setPaintProperty('sel-ring', 'circle-stroke-color', sColor(selected.score));
+      m.flyTo({ center: [selected.longitude, selected.latitude], zoom: Math.max(m.getZoom(), 9), duration: 900 });
+    } else if (sel) {
+      sel.setData(EMPTY_FC);
+    }
+  }, [selected, mapLoaded]);
+
+  // Subtle pulse on top-scored markers (visual only, reduced-motion aware)
+  useEffect(() => {
+    if (!mapLoaded) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const m = mapRef.current;
+    if (!m || !m.getLayer('prop-pulse')) return;
+    let raf;
+    const start = performance.now();
+    const tick = now => {
+      if (!mapRef.current?.getLayer('prop-pulse')) return;
+      const ph = ((now - start) % 2600) / 2600 * Math.PI * 2;
+      m.setPaintProperty('prop-pulse', 'circle-radius', 15 + Math.sin(ph) * 4);
+      m.setPaintProperty('prop-pulse', 'circle-opacity', 0.14 + (Math.sin(ph) + 1) * 0.1);
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [mapLoaded]);
+
+  const resetView = () => mapRef.current?.flyTo({ ...US_VIEW, duration: 900 });
+
   const verdictBadge = s => s >= 88 ? 'badge-green' : s >= 75 ? 'badge-blue' : s >= 65 ? 'badge-gold' : 'badge-red';
   const verdictLabel = s => s >= 88 ? 'Strong Buy'   : s >= 75 ? 'Solid Deal'  : s >= 65 ? 'With Caution' : 'High Risk';
   const hasFilters = search || fType !== 'all' || fScore > 0;
@@ -189,7 +377,7 @@ export default function InteractiveMap() {
     <div className="page">
       <div className="page-header">
         <h1 className="page-title">Investment Map</h1>
-        <p className="page-subtitle">AI-scored properties across key US markets. Click a pin or row to select.</p>
+        <p className="page-subtitle">AI-scored properties across key US markets. Click a marker or row to select.</p>
       </div>
 
       {/* ── Market insights bar ─────────────────────── */}
@@ -285,77 +473,35 @@ export default function InteractiveMap() {
         </div>
 
         {/* ── Map area ──────────────────────────────────── */}
-        <div className={`imap-map-wrap imap-map-wrap--${layer}`}>
+        <div className="imap-map-wrap">
 
-          {/* Grid background */}
-          <div className="imap-map-bg" />
+          {/* Real interactive basemap (maplibre-gl + OpenFreeMap vector tiles) */}
+          <div ref={containerRef} className="imap-canvas" />
 
-          {/* SVG decoration (geography, water, parks) */}
-          <svg className="imap-map-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
-            {/* Pacific Ocean band */}
-            <rect x="0" y="0" width="2.5" height="100" fill="rgba(13,40,90,0.6)"/>
-            {/* Atlantic band */}
-            <rect x="85" y="0" width="15" height="100" fill="rgba(13,40,90,0.45)"/>
-            {/* Gulf of Mexico */}
-            <ellipse cx="43" cy="94" rx="17" ry="7" fill="rgba(13,40,90,0.55)"/>
-            {/* Great Lakes */}
-            <ellipse cx="52" cy="23" rx="4.5" ry="2"   fill="rgba(13,50,100,0.55)"/>
-            <ellipse cx="57" cy="21" rx="3.2" ry="1.4" fill="rgba(13,50,100,0.5)"/>
-            <ellipse cx="48" cy="21" rx="2.4" ry="1.2" fill="rgba(13,50,100,0.5)"/>
-            <ellipse cx="62" cy="24" rx="2"   ry="1"   fill="rgba(13,50,100,0.4)"/>
-            {/* Florida peninsula */}
-            <path d="M72,77 L75,89 L72,96 L69,89 L71,82 Z" fill="rgba(13,40,90,0.25)"/>
-            {/* Parks */}
-            <rect x="29" y="34" width="5" height="5.5" rx="1.5" fill="rgba(5,56,30,0.5)"/>
-            <rect x="68" y="46" width="4" height="4.5" rx="1.2" fill="rgba(5,56,30,0.45)"/>
-            <rect x="22" y="54" width="3.8" height="3.5" rx="1.2" fill="rgba(5,56,30,0.4)"/>
-            <rect x="55" y="14" width="3" height="3" rx="1" fill="rgba(5,56,30,0.35)"/>
-            {/* City cluster glows */}
-            <circle cx="52" cy="29" r="9" fill="rgba(37,99,235,0.07)"/>
-            <circle cx="61" cy="57" r="8" fill="rgba(37,99,235,0.06)"/>
-            <circle cx="38" cy="65" r="8" fill="rgba(201,168,76,0.06)"/>
-            <circle cx="78" cy="27" r="7" fill="rgba(37,99,235,0.06)"/>
-            <circle cx="72" cy="78" r="7" fill="rgba(201,168,76,0.07)"/>
-            <circle cx="8"  cy="35" r="8" fill="rgba(37,99,235,0.05)"/>
-          </svg>
-
-          {/* Property pins */}
-          {filtered.map(p => {
-            const col      = sColor(p.score);
-            const isActive = selected?.id === p.id;
-            const isTop    = p.score >= 90;
-            return (
-              <button
-                key={p.id}
-                className={`imap-pin${isActive ? ' imap-pin--active' : ''}${isTop ? ' imap-pin--top' : ''}`}
-                style={{ left: `${p.mx}%`, top: `${p.my}%`, '--pc': col }}
-                onClick={() => handleSelect(p)}
-                title={`${p.address} · ${fmtK(p.price)} · AI ${p.score}`}
-              >
-                <div className="imap-pin-bubble">
-                  <span className="imap-pin-score">{p.score}</span>
-                  <span className="imap-pin-price">{fmtK(p.price)}</span>
-                </div>
-                <div className="imap-pin-tip" />
-              </button>
-            );
-          })}
-
-          {/* Map layer toggle */}
-          <div className="imap-controls">
-            <div className="imap-ctrl-group">
-              <button
-                className={`imap-ctrl-btn${layer === 'dark' ? ' active' : ''}`}
-                onClick={() => setLayer('dark')}
-                title="Dark map"
-              >🌙</button>
-              <button
-                className={`imap-ctrl-btn${layer === 'light' ? ' active' : ''}`}
-                onClick={() => setLayer('light')}
-                title="Light map"
-              >☀️</button>
+          {/* Loading / error states */}
+          {!mapLoaded && !loadError && (
+            <div className="imap-map-loading">
+              <div className="imap-spinner" />
+              <span>Loading interactive map…</span>
             </div>
+          )}
+          {loadError && (
+            <div className="imap-map-error">
+              <span>⚠️</span>
+              <p>{loadError}</p>
+            </div>
+          )}
+
+          {/* AI market-scan status badge */}
+          <div className="imap-scan-badge">
+            <span className="imap-scan-badge__dot" />
+            AI MARKET SCAN
           </div>
+
+          {/* Reset view */}
+          <button className="imap-reset-btn" onClick={resetView} title="Zoom out to the US overview">
+            US Overview
+          </button>
 
           {/* Legend */}
           <div className="imap-legend">
@@ -366,14 +512,6 @@ export default function InteractiveMap() {
               </div>
             ))}
           </div>
-
-          {/* No-results overlay */}
-          {filtered.length === 0 && (
-            <div className="imap-map-empty">
-              <span>No properties visible</span>
-              <span>Adjust your filters to show listings</span>
-            </div>
-          )}
 
           {/* ── Selected property detail card (overlay) ── */}
           {selected && (
