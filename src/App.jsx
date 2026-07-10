@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
+import TopNav from './components/TopNav';
 import Homepage from './pages/Homepage';
 import Dashboard from './pages/Dashboard';
 import PropertyWorkspace from './pages/PropertyWorkspace';
@@ -41,7 +41,7 @@ export default function App() {
     <>
       <BrowserRouter>
         <div className="app-layout">
-          <Sidebar />
+          <TopNav />
           <main className="main-content">
             <Routes>
               <Route path="/"                element={<Homepage />} />
