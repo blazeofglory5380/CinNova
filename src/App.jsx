@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import TopNav from './components/TopNav';
 import Homepage from './pages/Homepage';
 import Dashboard from './pages/Dashboard';
@@ -44,7 +44,8 @@ export default function App() {
           <TopNav />
           <main className="main-content">
             <Routes>
-              <Route path="/"                element={<Homepage />} />
+              <Route path="/"                element={<Navigate to="/main-dashboard" replace />} />
+              <Route path="/home"            element={<Homepage />} />
               <Route path="/dashboard"       element={<Dashboard />} />
               <Route path="/workspace"       element={<PropertyWorkspace />} />
               <Route path="/property-workspace" element={<PropertyWorkspace />} />
