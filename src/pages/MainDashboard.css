@@ -1,21 +1,42 @@
+/* Dashboard page fills the full app width (the global .page caps at 1280px and
+   left-aligns, which left a large white column on the right of this full-width
+   app screen). Scoped to the dashboard only — other pages keep their max-width. */
+.page.wd-dashboard-page {
+  max-width: none;
+}
+
 /* ══ Cinematic Hero ═══════════════════════════════════════════ */
-/* Full-bleed dark hero — bleeds to the content edges via negative
-   margins that mirror the .page padding (36px 40px default). */
+/* Full-bleed dark hero — the full 16:9 video frame, no text overlays. */
 .wd-hero {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  min-height: 620px;
-  margin: -36px -40px 0;
-  padding: 70px 40px 120px;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  margin: 0;
+  padding: 0;
   border-radius: 0;
   background:
     radial-gradient(90% 120% at 82% 8%, rgba(13,148,136,0.24) 0%, transparent 42%),
     radial-gradient(85% 120% at 8% 95%, rgba(37,99,235,0.30) 0%, transparent 46%),
     linear-gradient(160deg, #0a1a34 0%, #0b1e3f 48%, #091730 100%);
   color: #e8f0fb;
+}
+
+/* Subtle scrim: light overall darken + a gentle vignette so the full-bleed video
+   reads as premium without any text over it. No light/white fade — the bottom edge
+   stays a faint dark transparent so the desk/laptop/table map remain visible. */
+.wd-hero-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(6,15,34,0.24) 0%, rgba(6,15,34,0) 22%, rgba(6,15,34,0) 68%, rgba(7,17,36,0.18) 100%),
+    radial-gradient(120% 90% at 50% 42%, rgba(0,0,0,0) 58%, rgba(4,10,26,0.24) 100%);
+  pointer-events: none;
 }
 
 /* ── Decorative background layers ── */
@@ -55,6 +76,22 @@
   transform: scale(1.05);
   transform-origin: 55% 50%;
   animation: wd-kenburns 28s ease-in-out infinite alternate, wd-bloom-breathe 7s ease-in-out infinite;
+}
+
+/* Approved Laguna Beach AI dashboard hero video — covers the hero as the live
+   background. Painted after the still-image layers (over them) and before the
+   veil/glow layers (under them), so hero text stays readable. */
+.wd-hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* Show the entire approved video frame — no crop, no zoom. The hero is a natural
+     16:9 box so contain fits the whole frame; dark hero bg covers any tiny bands. */
+  object-fit: contain;
+  object-position: center center;
+  border: none;
+  pointer-events: none;
 }
 
 /* Lighter gradient veil — darkens the LEFT (text) side only; keeps the
@@ -543,19 +580,9 @@
 .wd-hp-spark { width: 100%; height: 28px; margin-top: 4px; }
 .wd-hp-note { font-size: 10.5px; font-weight: 600; color: #6f8bb0; }
 
-/* ── Bottom fade → melts the dark hero into the light dashboard (#f4f6fa) ── */
-.wd-hero-fade {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: 150px;
-  z-index: 0;
-  background: linear-gradient(180deg,
-    rgba(9,23,47,0) 0%,
-    rgba(9,23,47,0.4) 42%,
-    rgba(120,140,170,0.35) 78%,
-    #f4f6fa 100%);
-  pointer-events: none;
-}
+/* Bottom fade removed — it was a light gradient ending in #f4f6fa that hazed the
+   lower third of the hero video (desk/laptop/table map). The hero now ends on a
+   clean edge; the .page top padding spaces it evenly from the dashboard below. */
 
 /* ── Entrance animation utility ── */
 .wd-anim { opacity: 0; animation: wd-rise 0.7s cubic-bezier(0.2,0.7,0.2,1) both; }
@@ -610,39 +637,10 @@
   50%      { opacity: 0.9;  transform: scale(1.08); }
 }
 
-/* ── Hero responsive ── */
-@media (max-width: 1024px) {
-  .wd-hero { margin: -24px -20px 0; padding: 54px 22px 110px; min-height: 560px; }
-  .wd-hero-title { font-size: 48px; }
-}
-
-@media (max-width: 860px) {
-  .wd-hero { min-height: auto; padding: 48px 22px 120px; }
-  .wd-hero-title { font-size: 42px; }
-  .wd-hero-main { max-width: none; }
-  .wd-hero-photo { background-position: 62% 34%; }
-  /* Stacked: text sits over the image → stronger top-down veil for readability */
-  .wd-hero-veil {
-    background:
-      linear-gradient(180deg,
-        rgba(6,15,34,0.9) 0%,
-        rgba(7,18,38,0.78) 38%,
-        rgba(8,20,42,0.6) 62%,
-        rgba(8,20,42,0.4) 82%,
-        rgba(7,17,36,0.5) 100%);
-  }
-  .wd-hero-bloom { opacity: 0.32; }
-}
-
-@media (max-width: 640px) {
-  .wd-hero { margin: -20px -16px 0; padding: 38px 16px 96px; }
-  .wd-hero-title { font-size: 33px; letter-spacing: -1.2px; }
-  .wd-hero-sub { font-size: 14.5px; }
-  .wd-hero-ctas { flex-direction: column; align-items: stretch; }
-  .wd-hero-cta { width: 100%; }
-  .wd-hero-features { gap: 16px 20px; }
-  .wd-hero-fade { height: 110px; }
-}
+/* ── Hero responsive ── The hero is a natural 16:9 box (aspect-ratio), so its
+   height scales proportionally with width at every breakpoint — the full video
+   frame stays visible and uncropped from desktop down to mobile. No per-width
+   height overrides needed. */
 
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {

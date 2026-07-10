@@ -488,145 +488,29 @@ export default function MainDashboard() {
   const allDone = checklist.length > 0 && checklistComplete === checklist.length;
 
   return (
-    <div className="page">
+    <>
 
-      {/* ── Hero (cinematic) ── */}
-      <section className="wd-hero" aria-label="CinNova Real Estate AI">
+      {/* ── Hero: full-bleed Laguna Beach AI dashboard video, no text/UI overlays ── */}
+      <section className="wd-hero" aria-label="CinNova Real Estate AI dashboard">
 
-        {/* Decorative background layers */}
         <div className="wd-hero-bg" aria-hidden>
-          {/* Clean cinematic photo (glowing property + AI rings + warm lights) */}
-          <div
-            className="wd-hero-photo"
-            style={{ backgroundImage: "url('/images/real-estate-ai-hero-background-clean.png')" }}
+          {/* Approved loop-fixed Laguna Beach AI dashboard video — the only hero visual. */}
+          <video
+            className="wd-hero-video"
+            src="/videos/cinnova-real-estate-ai-blog-hero-investment-dashboard.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            aria-hidden="true"
           />
-          {/* Bloom — blurred, brightened copy blended to make all lights glow more */}
-          <div
-            className="wd-hero-bloom"
-            style={{ backgroundImage: "url('/images/real-estate-ai-hero-background-clean.png')" }}
-          />
-          {/* Light gradient overlay — keeps left text readable, right stays bright */}
-          <div className="wd-hero-veil" />
-          {/* Ambient depth glow */}
-          <div className="wd-hero-glow wd-hero-glow--blue" />
-          <div className="wd-hero-glow wd-hero-glow--teal" />
-          {/* City skyline light glow */}
-          <div className="wd-hero-spot wd-hero-spot--city" />
-          {/* Soft golden bloom around the house */}
-          <div className="wd-hero-goldbloom" />
-          {/* Defined warm window glow (primary) */}
-          <div className="wd-hero-windows" />
-          {/* Warm exterior / landscaping glow */}
-          <div className="wd-hero-spot wd-hero-spot--exterior" />
-          {/* Warm tree / landscaping uplights */}
-          <div className="wd-hero-trees" />
-          {/* Cyan AI-ring glow (secondary, pulsing) */}
-          <div className="wd-hero-spot wd-hero-spot--ring" />
-          {/* Glowing circular AI grid/ring following the plaza ring shape */}
-          <div className="wd-hero-ring" />
-          <div className="wd-hero-ring wd-hero-ring--outer" />
-          {/* Soft ground reflection under the house/ring */}
-          <div className="wd-hero-reflect" />
-          {/* Scattered blue light nodes / data points */}
-          <svg className="wd-hero-nodes" viewBox="0 0 1440 620" preserveAspectRatio="xMidYMid slice" fill="none">
-            {/* skyline + grid ambient nodes */}
-            {[
-              [120,90],[260,60],[410,120],[560,70],[720,50],[880,96],[1040,64],[1200,110],[1330,72],
-              [90,300],[300,470],[520,540],[240,560],[700,520],[980,300],[1180,470],[1320,520],
-              [1080,540],[620,300],[860,560],[430,330]
-            ].map(([cx, cy], i) => (
-              <circle key={`n${i}`} className={`wd-node wd-node--${i % 4}`} cx={cx} cy={cy} r={cy < 130 ? 2 : 2.6} fill="#7dd3fc" />
-            ))}
-            {/* brighter nodes tracing the circular ring around the house */}
-            {[
-              [690,452],[770,486],[864,506],[968,512],[1072,506],[1170,484],[1258,450],
-              [812,500],[1118,498],[930,516],[1016,516]
-            ].map(([cx, cy], i) => (
-              <circle key={`r${i}`} className={`wd-node wd-node--ring wd-node--${i % 4}`} cx={cx} cy={cy} r="3" fill="#93e0ff" />
-            ))}
-          </svg>
-          {/* Faint light sweep */}
-          <div className="wd-hero-scan" />
-          {/* Animated data arcs */}
-          <svg className="wd-hero-arcs" viewBox="0 0 1440 320" preserveAspectRatio="xMidYMid slice" fill="none">
-            <path className="wd-hero-arc wd-hero-arc--1" d="M-20 300 C 360 120, 760 120, 1120 40" stroke="#3b82f6" strokeWidth="1.2"/>
-            <path className="wd-hero-arc wd-hero-arc--2" d="M-20 320 C 420 200, 900 200, 1460 60" stroke="#0d9488" strokeWidth="1.2"/>
-            <path className="wd-hero-arc wd-hero-arc--3" d="M120 340 C 500 160, 1000 260, 1460 140" stroke="#22d3ee" strokeWidth="1"/>
-          </svg>
+          {/* Subtle scrim only — polish + melts the video into the dashboard below. */}
+          <div className="wd-hero-scrim" />
         </div>
-
-        <div className="wd-hero-inner">
-          <div className="wd-hero-main">
-            <div className="wd-hero-badges wd-anim wd-anim--1">
-              <span className="wd-hb">CinNova Real Estate AI</span>
-              <span className="wd-hb wd-hb--dot">Beta Active</span>
-              <span className="wd-hb wd-hb--ghost">Property Intelligence Platform</span>
-            </div>
-
-            <h1 className="wd-hero-title">
-              <span className="wd-hero-line wd-anim wd-anim--2">Analyze Properties.</span>
-              <span className="wd-hero-line wd-anim wd-anim--3">Score Deals.</span>
-              <span className="wd-hero-line wd-hero-accent wd-anim wd-anim--4">Invest Smarter.</span>
-            </h1>
-
-            <p className="wd-hero-sub wd-anim wd-anim--5">
-              CinNova Real Estate AI helps you evaluate rental properties, estimate cash
-              flow, compare markets, and turn raw numbers into confident investment decisions.
-            </p>
-
-            <div className="wd-hero-ctas wd-anim wd-anim--6">
-              <button className="wd-hero-cta wd-hero-cta--primary" onClick={() => navigate('/analyzer')}>
-                Start Property Analysis
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-                  <path d="M3 8h9M8 4l4 4-4 4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-              <button className="wd-hero-cta wd-hero-cta--ghost" onClick={() => go('/score-engine')}>
-                <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden>
-                  <path d="M3 12.5C3 9.46 5.69 7 9 7s6 2.46 6 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                  <path d="M9 7V4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-                  <path d="M9 12.5L6.5 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                  <circle cx="9" cy="12.5" r="1.5" fill="currentColor"/>
-                </svg>
-                Run Deal Score
-              </button>
-            </div>
-
-            <div className="wd-hero-features wd-anim wd-anim--7">
-              {[
-                {
-                  title: '100-Point', sub: 'Deal Score', tone: 'green',
-                  icon: (<><circle cx="9" cy="9" r="6.5" stroke="currentColor" strokeWidth="1.4"/><path d="M6.2 9.2l2 2L12 7.4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></>),
-                },
-                {
-                  title: 'Cash Flow &', sub: 'ROI Estimates', tone: 'teal',
-                  icon: (<><circle cx="9" cy="9" r="6.5" stroke="currentColor" strokeWidth="1.4"/><path d="M9 5.2V6.4M9 11.6v1.2M7 10.6c0 .9.9 1.4 2 1.4s2-.5 2-1.5-.9-1.3-2-1.6c-1.1-.3-2-.6-2-1.6 0-.9.9-1.3 2-1.3s2 .5 2 1.3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></>),
-                },
-                {
-                  title: 'Market', sub: 'Intelligence', tone: 'blue',
-                  icon: (<><path d="M3 14V8M7 14V5M11 14v-4M15 14V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></>),
-                },
-                {
-                  title: 'AI Advisor', sub: 'Insights', tone: 'purple',
-                  icon: (<><rect x="3" y="6" width="12" height="8" rx="2.5" stroke="currentColor" strokeWidth="1.4"/><circle cx="6.5" cy="10" r="1" fill="currentColor"/><circle cx="11.5" cy="10" r="1" fill="currentColor"/><path d="M9 3v3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><circle cx="9" cy="2.6" r="1" fill="currentColor"/></>),
-                },
-              ].map((f, i) => (
-                <div key={i} className="wd-hero-feat">
-                  <span className={`wd-hero-feat-icon wd-hero-feat-icon--${f.tone}`} aria-hidden>
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">{f.icon}</svg>
-                  </span>
-                  <div className="wd-hero-feat-txt">
-                    <strong>{f.title}</strong>
-                    <span>{f.sub}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="wd-hero-fade" aria-hidden />
       </section>
+
+      <div className="page wd-dashboard-page">
 
       {/* ── Header ── */}
       <div className="page-header wd-page-header">
@@ -1003,6 +887,7 @@ export default function MainDashboard() {
 
       <BetaFooter page="Main Dashboard" />
 
-    </div>
+      </div>
+    </>
   );
 }
